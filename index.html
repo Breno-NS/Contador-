@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#090F1E" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Contador" />
+  <title>Contador</title>
+  <link id="app-icon-link" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%23090F1E'/%3E%3Crect x='10' y='10' width='108' height='108' rx='22' fill='none' stroke='%233B82F6' stroke-width='4'/%3E%3Ctext x='64' y='78' text-anchor='middle' font-family='system-ui,sans-serif' font-size='54' font-weight='900' fill='%23FFFFFF'%3E%2B1%3C/text%3E%3C/svg%3E" />
+  <link id="apple-icon-link" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%23090F1E'/%3E%3Crect x='10' y='10' width='108' height='108' rx='22' fill='none' stroke='%233B82F6' stroke-width='4'/%3E%3Ctext x='64' y='78' text-anchor='middle' font-family='system-ui,sans-serif' font-size='54' font-weight='900' fill='%23FFFFFF'%3E%2B1%3C/text%3E%3C/svg%3E" />
+  <style>
+    :root {
+      --bg: #EEF2FF;
+      --bg-grad: linear-gradient(180deg, #E0E7FF 0%, #F8FAFC 50%, #EFF6FF 100%);
+      --card: #FFFFFF;
+      --card-2: #F1F5F9;
+      --text: #0F172A;
+      --muted: #475569;
+      --accent: #2563EB;
+      --accent-2: #06B6D4;
+      --accent-soft: rgba(37, 99, 235, 0.14);
+      --border: #CBD5E1;
+      --danger: #E11D48;
+      --ok: #10B981;
+      --shadow: 0 18px 36px -16px rgba(37, 99, 235, 0.22);
+    }
+    body.dark {
+      --bg: #060A14;
+      --bg-grad: linear-gradient(180deg, #0D172E 0%, #070C18 55%, #091326 100%);
+      --card: #111A2E;
+      --card-2: #17233D;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+      --accent: #3B82F6;
+      --accent-2: #22D3EE;
+      --accent-soft: rgba(59, 130, 246, 0.18);
+      --border: #1E2E4D;
+      --danger: #FB7185;
+      --ok: #34D399;
+      --shadow: 0 22px 46px -16px rgba(0, 0, 0, 0.75);
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0; width: 100%; height: 100dvh; overflow: hidden;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg); background-image: var(--bg-grad); color: var(--text);
+      user-select: none;
+    }
+    button, input { font-family: inherit; touch-action: manipulation; }
+    button { cursor: pointer; }
+    button:disabled { opacity: 0.38; pointer-events: none; }
+
+    .app {
+      height: 100dvh; width: 100%; max-width: 520px; margin: 0 auto;
+      padding: 10px;
+      display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
+    }
+
+    .row-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; }
+    .steps {
+      display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 14px;
+      background: var(--card); border: 1px solid var(--border);
+    }
+    .step-btn {
+      border: none; background: transparent; color: var(--muted); font-weight: 800;
+      font-size: 0.74rem; padding: 7px 8px; border-radius: 11px;
+    }
+    .step-btn.active {
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #FFFFFF;
+    }
+    .right-tools { display: flex; align-items: center; gap: 5px; }
+    .tool-btn {
+      display: inline-flex; align-items: center; gap: 4px; padding: 7px 9px; border-radius: 14px;
+      background: var(--card); border: 1px solid var(--border); color: var(--text);
+      font-size: 0.74rem; font-weight: 800;
+    }
+    .badge {
+      padding: 2px 6px; border-radius: 999px; font-size: 0.66rem; font-weight: 800;
+      background: var(--accent-soft); color: var(--accent);
+    }
+
+    .stage {
+      position: relative; flex: 1; min-height: 0; border-radius: 26px;
+      background: linear-gradient(160deg, var(--card) 0%, var(--card-2) 100%);
+      border: 1.5px solid var(--border); box-shadow: var(--shadow);
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      padding: 16px; text-align: center; overflow: hidden;
+    }
+    .stage:active { transform: scale(0.992); }
+    .stage-inner {
+      position: relative; z-index: 2; pointer-events: none; width: 100%;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+    }
+    .big-num {
+      font-size: clamp(4.4rem, 19vw, 6.6rem); font-weight: 900; line-height: 1;
+      letter-spacing: -0.04em; font-variant-numeric: tabular-nums;
+      transition: transform 0.12s ease;
+    }
+    .big-num.bump { transform: scale(1.05); }
+    .hint-chip {
+      padding: 6px 14px; border-radius: 999px;
+      background: var(--accent-soft); border: 1px solid var(--border);
+      color: var(--text); font-size: 0.8rem; font-weight: 700;
+    }
+    .feedback { font-size: 0.76rem; color: var(--muted); min-height: 18px; font-weight: 600; }
+
+    .goal-box { display: none; margin-top: 4px; width: 100%; max-width: 260px; }
+    .goal-box.show { display: block; }
+    .goal-top { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+    .goal-track { height: 8px; border-radius: 999px; background: var(--card); overflow: hidden; border: 1px solid var(--border); }
+    .goal-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 999px; transition: width 0.2s ease; }
+    .goal-fill.done { background: var(--ok); }
+
+    .ripple {
+      position: absolute; width: 170px; height: 170px; border-radius: 50%;
+      background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
+      transform: translate(-50%, -50%) scale(0.2);
+      animation: rip 0.45s ease-out forwards; pointer-events: none; z-index: 1;
+    }
+    @keyframes rip { to { transform: translate(-50%, -50%) scale(1.6); opacity: 0; } }
+
+    .bottom { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+    .g4-2 { display: grid; grid-template-columns: 0.85fr 0.85fr 1fr 1.55fr; gap: 6px; }
+    .b-card {
+      padding: 13px 6px; border-radius: 15px; background: var(--card); border: 1px solid var(--border);
+      color: var(--text); font-size: 0.84rem; font-weight: 800;
+    }
+    .b-card:active { transform: scale(0.96); }
+    .b-plus { border-color: var(--accent); color: var(--accent); }
+    .b-minus { border-color: rgba(245, 158, 11, 0.35); }
+    .b-accent { background: var(--accent-soft); border-color: var(--accent); color: var(--accent); }
+    .b-danger { background: rgba(244, 63, 94, 0.1); border-color: rgba(244, 63, 94, 0.35); color: var(--danger); }
+    .b-primary {
+      padding: 13px 10px; border-radius: 15px; border: none;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      color: #FFFFFF; font-size: 0.84rem; font-weight: 800;
+    }
+    .b-primary:active { transform: scale(0.96); }
+
+    .modal {
+      position: fixed; inset: 0; z-index: 60; background: rgba(2, 6, 23, 0.72);
+      backdrop-filter: blur(5px);
+      display: none; align-items: center; justify-content: center; padding: 14px;
+    }
+    .modal.open { display: flex; }
+    .sheet {
+      width: 100%; max-width: 430px; max-height: 85dvh; overflow-y: auto;
+      border-radius: 24px; background: var(--card); border: 1.5px solid var(--border);
+      padding: 16px; box-shadow: var(--shadow);
+    }
+    .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .sheet-title { font-size: 0.98rem; font-weight: 800; margin: 0; }
+    .x-btn {
+      border: 1px solid var(--border); background: var(--card-2); color: var(--muted);
+      border-radius: 11px; padding: 6px 10px; font-weight: 700; font-size: 0.78rem;
+    }
+    .inp {
+      width: 100%; padding: 11px 13px; border-radius: 13px;
+      border: 1px solid var(--border); background: var(--card-2); color: var(--text);
+      font-size: 0.92rem; font-weight: 700; outline: none;
+    }
+    .inp:focus { border-color: var(--accent); }
+    .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; }
+    .q-btn {
+      padding: 8px; border-radius: 11px; border: 1px solid var(--border);
+      background: var(--card-2); color: var(--text); font-size: 0.78rem; font-weight: 700;
+    }
+    .m-actions { display: flex; gap: 8px; margin-top: 12px; }
+    .m-actions > * { flex: 1; }
+    .h-item {
+      padding: 11px 12px; border-radius: 15px; background: var(--card-2); border: 1px solid var(--border);
+      margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+    }
+    .h-val { font-size: 1.15rem; font-weight: 850; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .s-btn {
+      padding: 6px 9px; border-radius: 10px; border: 1px solid var(--border);
+      background: var(--card); color: var(--text); font-size: 0.72rem; font-weight: 700;
+    }
+  </style>
+</head>
+<body class="dark">
+  <div class="app">
+    <header class="row-top">
+      <div class="steps" role="group" aria-label="Passo">
+        <button id="step-1" class="step-btn" type="button" onclick="setStep(1)">1</button>
+        <button id="step-5" class="step-btn" type="button" onclick="setStep(5)">5</button>
+        <button id="step-10" class="step-btn active" type="button" onclick="setStep(10)">10</button>
+        <button id="step-custom" class="step-btn" type="button" onclick="openStepModal()">...</button>
+      </div>
+      <div class="right-tools">
+        <button id="open-hist" class="tool-btn" type="button" onclick="openHistory()">
+          <span>Hist.</span>
+          <span id="hist-badge" class="badge">0</span>
+        </button>
+        <button id="theme-btn" class="tool-btn" type="button" onclick="toggleTheme()" aria-label="Tema">🌓</button>
+      </div>
+    </header>
+
+    <main id="stage" class="stage" onclick="onStageClick(event)">
+      <div class="stage-inner">
+        <div id="num" class="big-num">0</div>
+        <div id="hint" class="hint-chip">Toque na área para +10</div>
+        <div id="feedback" class="feedback">Pronto para contar</div>
+        <div id="goal-box" class="goal-box">
+          <div class="goal-top">
+            <span id="goal-label">Meta: 0 / 0</span>
+            <span id="goal-pct">0%</span>
+          </div>
+          <div class="goal-track"><div id="goal-fill" class="goal-fill"></div></div>
+        </div>
+      </div>
+    </main>
+
+    <footer class="bottom">
+      <div class="g4">
+        <button class="b-card b-plus" type="button" onclick="add(1)">+1</button>
+        <button id="b-m1" class="b-card b-minus" type="button" onclick="add(-1)">-1</button>
+        <button class="b-card b-accent" type="button" onclick="openCustom()">Valor</button>
+        <button id="b-m10" class="b-card b-minus" type="button" onclick="add(-10)">-10</button>
+      </div>
+      <div class="g4-2">
+        <button class="b-card" type="button" onclick="openGoal()">Meta</button>
+        <button id="b-undo" class="b-card" type="button" onclick="undoLast()" title="Desfazer">↩</button>
+        <button id="b-reset" class="b-card b-danger" type="button" onclick="resetCounter()">Zerar</button>
+        <button id="b-finish" class="b-primary" type="button" onclick="openFinish()">Concluir</button>
+      </div>
+    </footer>
+  </div>
+
+  <!-- Modal Passo Personalizado -->
+  <div id="m-step" class="modal" onclick="if(event.target===this) closeModal('m-step')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 class="sheet-title">Passo Personalizado</h2>
+        <button class="x-btn" type="button" onclick="closeModal('m-step')">✕</button>
+      </div>
+      <input id="inp-step" class="inp" type="number" inputmode="numeric" min="1" placeholder="Ex: 2, 20, 50..." style="text-align:center;" />
+      <div class="q-grid">
+        <button class="q-btn" type="button" onclick="pickStep(2)">2</button>
+        <button class="q-btn" type="button" onclick="pickStep(20)">20</button>
+        <button class="q-btn" type="button" onclick="pickStep(50)">50</button>
+        <button class="q-btn" type="button" onclick="pickStep(100)">100</button>
+      </div>
+      <div class="m-actions">
+        <button class="b-card" type="button" onclick="closeModal('m-step')">Cancelar</button>
+        <button class="b-primary" type="button" onclick="saveStep()">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Valor -->
+  <div id="m-custom" class="modal" onclick="if(event.target===this) closeModal('m-custom')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 class="sheet-title">Adicionar Valor</h2>
+        <button class="x-btn" type="button" onclick="closeModal('m-custom')">✕</button>
+      </div>
+      <input id="inp-custom" class="inp" type="number" inputmode="numeric" min="1" placeholder="Ex: 25" style="text-align:center;" />
+      <div class="q-grid">
+        <button class="q-btn" type="button" onclick="quickVal(10)">+10</button>
+        <button class="q-btn" type="button" onclick="quickVal(25)">+25</button>
+        <button class="q-btn" type="button" onclick="quickVal(50)">+50</button>
+        <button class="q-btn" type="button" onclick="quickVal(100)">+100</button>
+      </div>
+      <div class="m-actions">
+        <button class="b-card" type="button" onclick="closeModal('m-custom')">Cancelar</button>
+        <button class="b-primary" type="button" onclick="confirmCustom()">Adicionar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Meta -->
+  <div id="m-goal" class="modal" onclick="if(event.target===this) closeModal('m-goal')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 class="sheet-title">Meta de Contagem</h2>
+        <button class="x-btn" type="button" onclick="closeModal('m-goal')">✕</button>
+      </div>
+      <input id="inp-goal" class="inp" type="number" inputmode="numeric" min="0" placeholder="Valor da meta (ex: 100)" style="text-align:center;" />
+      <div class="m-actions">
+        <button class="b-card b-danger" type="button" onclick="clearGoal()">Remover</button>
+        <button class="b-primary" type="button" onclick="saveGoal()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Concluir -->
+  <div id="m-finish" class="modal" onclick="if(event.target===this) closeModal('m-finish')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 class="sheet-title">Concluir Contagem</h2>
+        <button class="x-btn" type="button" onclick="closeModal('m-finish')">✕</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:13px;background:var(--card-2);border:1px solid var(--border);margin-bottom:10px;">
+        <span style="font-size:0.78rem;color:var(--muted);">Valor a salvar</span>
+        <span id="fin-val" style="font-size:1.4rem;font-weight:850;color:var(--accent);">0</span>
+      </div>
+      <input id="inp-label" class="inp" type="text" maxlength="80" placeholder="Nome ou observação (opcional)" style="font-size:0.9rem;font-weight:600;" />
+      <div class="m-actions">
+        <button class="b-card" type="button" onclick="closeModal('m-finish')">Cancelar</button>
+        <button class="b-primary" type="button" onclick="saveFinish()">Salvar e Zerar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal Histórico -->
+  <div id="m-hist" class="modal" onclick="if(event.target===this) closeModal('m-hist')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 class="sheet-title">Histórico</h2>
+          <div id="hist-sub" style="font-size:0.72rem;color:var(--muted);">0 registros salvos</div>
+        </div>
+        <button class="x-btn" type="button" onclick="closeModal('m-hist')">✕</button>
+      </div>
+      <div id="hist-list"></div>
+    </div>
+  </div>
+
+  <script>
+    const STORE_KEY = 'contador_base_v1';
+    let state = {
+      count: 0,
+      step: 10,
+      goal: null,
+      goalHit: false,
+      dark: true,
+      lastText: 'Pronto para contar',
+      history: []
+    };
+    let prevSnapshot = null;
+    let resetArmed = false;
+    let resetTimer = null;
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && typeof parsed === 'object') {
+            state = {
+              ...state,
+              ...parsed,
+              history: Array.isArray(parsed.history) ? parsed.history : []
+            };
+          }
+        }
+      } catch (_) {}
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+      } catch (_) {}
+    }
+
+    function vibe(ms = 12) {
+      try { if (navigator.vibrate) navigator.vibrate(ms); } catch (_) {}
+    }
+
+    function snapshot() {
+      prevSnapshot = { count: state.count, goalHit: state.goalHit };
+      document.getElementById('b-undo').disabled = false;
+    }
+
+    function disarmReset() {
+      resetArmed = false;
+      if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
+      const b = document.getElementById('b-reset');
+      if (b) b.textContent = 'Zerar';
+    }
+
+    function render(bump = false) {
+      document.body.classList.toggle('dark', Boolean(state.dark));
+      const metaTheme = document.querySelector('meta[name="theme-color"]');
+      if (metaTheme) metaTheme.content = state.dark ? '#090F1E' : '#EEF2FF';
+
+      const numEl = document.getElementById('num');
+      numEl.textContent = state.count.toLocaleString('pt-BR');
+      if (bump) {
+        numEl.classList.remove('bump');
+        void numEl.offsetWidth;
+        numEl.classList.add('bump');
+        setTimeout(() => numEl.classList.remove('bump'), 130);
+      }
+
+      document.getElementById('hint').textContent = `Toque na área para +${state.step.toLocaleString('pt-BR')}`;
+      document.getElementById('feedback').textContent = state.lastText;
+
+      [1, 5, 10].forEach(n => {
+        document.getElementById('step-' + n).classList.toggle('active', n === state.step);
+      });
+      const stepCustom = document.getElementById('step-custom');
+      const isCustom = ![1, 5, 10].includes(state.step);
+      stepCustom.classList.toggle('active', isCustom);
+      stepCustom.textContent = isCustom ? String(state.step) : '...';
+
+      const gBox = document.getElementById('goal-box');
+      if (state.goal > 0) {
+        const pct = Math.min(100, Math.round((state.count / state.goal) * 100));
+        const done = state.count >= state.goal;
+        gBox.classList.add('show');
+        document.getElementById('goal-label').textContent = `Meta: ${state.count.toLocaleString('pt-BR')} / ${state.goal.toLocaleString('pt-BR')}`;
+        document.getElementById('goal-pct').textContent = pct + '%';
+        const fill = document.getElementById('goal-fill');
+        fill.style.width = pct + '%';
+        fill.classList.toggle('done', done);
+      } else {
+        gBox.classList.remove('show');
+      }
+
+      document.getElementById('b-m1').disabled = state.count <= 0;
+      document.getElementById('b-m10').disabled = state.count <= 0;
+      document.getElementById('b-undo').disabled = !prevSnapshot;
+      document.getElementById('b-reset').disabled = state.count <= 0;
+      document.getElementById('b-finish').disabled = state.count <= 0;
+      document.getElementById('hist-badge').textContent = state.history.length;
+    }
+
+    function checkGoal(prev) {
+      if (state.goal > 0 && prev < state.goal && state.count >= state.goal && !state.goalHit) {
+        state.goalHit = true;
+        vibe(40);
+        state.lastText = `Meta de ${state.goal.toLocaleString('pt-BR')} atingida!`;
+      }
+    }
+
+    function add(delta, tag = '') {
+      disarmReset();
+      const prev = state.count;
+      const next = Math.max(0, prev + delta);
+      if (next !== prev) snapshot();
+      state.count = next;
+      const diff = state.count - prev;
+      if (diff > 0) {
+        state.lastText = (tag ? tag + ' ' : '') + `+${diff.toLocaleString('pt-BR')} · Total ${state.count.toLocaleString('pt-BR')}`;
+        checkGoal(prev);
+      } else if (diff < 0) {
+        state.lastText = (tag ? tag + ' ' : '') + `${diff.toLocaleString('pt-BR')} · Total ${state.count.toLocaleString('pt-BR')}`;
+      } else {
+        state.lastText = 'Já está em 0';
+      }
+      saveState();
+      render(true);
+    }
+
+    function onStageClick(e) {
+      disarmReset();
+      const rect = e.currentTarget.getBoundingClientRect();
+      const r = document.createElement('span');
+      r.className = 'ripple';
+      r.style.left = (e.clientX - rect.left) + 'px';
+      r.style.top = (e.clientY - rect.top) + 'px';
+      e.currentTarget.appendChild(r);
+      setTimeout(() => r.remove(), 460);
+      vibe(12);
+      add(state.step);
+    }
+
+    function setStep(n) {
+      disarmReset();
+      const v = Math.floor(Number(n));
+      if (!Number.isFinite(v) || v <= 0) return;
+      state.step = v;
+      state.lastText = `Passo: +${v.toLocaleString('pt-BR')}`;
+      saveState();
+      render();
+    }
+
+    function openStepModal() {
+      disarmReset();
+      document.getElementById('inp-step').value = ![1, 5, 10].includes(state.step) ? state.step : '';
+      openModal('m-step');
+    }
+    function pickStep(n) { closeModal('m-step'); setStep(n); }
+    function saveStep() {
+      const v = parseInt(document.getElementById('inp-step').value, 10);
+      closeModal('m-step');
+      if (!isNaN(v) && v > 0) setStep(v);
+    }
+
+    function openCustom() {
+      disarmReset();
+      document.getElementById('inp-custom').value = '';
+      openModal('m-custom');
+    }
+    function quickVal(v) { closeModal('m-custom'); add(v, 'Valor'); }
+    function confirmCustom() {
+      const v = parseInt(document.getElementById('inp-custom').value, 10);
+      closeModal('m-custom');
+      if (!isNaN(v) && v > 0) add(v, 'Valor');
+    }
+
+    function openGoal() {
+      disarmReset();
+      document.getElementById('inp-goal').value = state.goal || '';
+      openModal('m-goal');
+    }
+    function saveGoal() {
+      const v = parseInt(document.getElementById('inp-goal').value, 10);
+      closeModal('m-goal');
+      if (!isNaN(v) && v > 0) {
+        state.goal = v;
+        state.goalHit = state.count >= v;
+        state.lastText = `Meta definida: ${v.toLocaleString('pt-BR')}`;
+      } else {
+        state.goal = null;
+        state.goalHit = false;
+        state.lastText = 'Meta removida';
+      }
+      saveState();
+      render();
+    }
+    function clearGoal() {
+      state.goal = null;
+      state.goalHit = false;
+      state.lastText = 'Meta removida';
+      closeModal('m-goal');
+      saveState();
+      render();
+    }
+
+    function undoLast() {
+      disarmReset();
+      if (!prevSnapshot) return;
+      state.count = prevSnapshot.count;
+      state.goalHit = prevSnapshot.goalHit;
+      prevSnapshot = null;
+      state.lastText = 'Desfeito';
+      saveState();
+      render(true);
+    }
+
+    function resetCounter() {
+      if (state.count <= 0) return;
+      const btn = document.getElementById('b-reset');
+      if (!resetArmed) {
+        resetArmed = true;
+        if (btn) btn.textContent = 'Certeza?';
+        resetTimer = setTimeout(disarmReset, 3500);
+        return;
+      }
+      disarmReset();
+      snapshot();
+      state.count = 0;
+      state.goalHit = false;
+      state.lastText = 'Contador zerado';
+      saveState();
+      render(true);
+    }
+
+    function openFinish() {
+      disarmReset();
+      if (state.count <= 0) return;
+      document.getElementById('fin-val').textContent = state.count.toLocaleString('pt-BR');
+      document.getElementById('inp-label').value = '';
+      openModal('m-finish');
+    }
+
+    function saveFinish() {
+      if (state.count <= 0) return closeModal('m-finish');
+      const label = (document.getElementById('inp-label').value || '').trim() || 'Contagem';
+      const val = state.count;
+      state.history.unshift({
+        label,
+        value: val,
+        date: new Date().toLocaleString('pt-BR')
+      });
+      state.count = 0;
+      state.goalHit = false;
+      prevSnapshot = null;
+      state.lastText = `Salvo: "${label}" (${val.toLocaleString('pt-BR')})`;
+      closeModal('m-finish');
+      saveState();
+      render(true);
+    }
+
+    function openHistory() {
+      disarmReset();
+      const total = state.history.reduce((a, b) => a + (Number(b.value) || 0), 0);
+      document.getElementById('hist-sub').textContent = `${state.history.length} registros · Soma: ${total.toLocaleString('pt-BR')}`;
+      const list = document.getElementById('hist-list');
+      list.innerHTML = !state.history.length
+        ? '<p style="text-align:center;color:var(--muted);padding:18px 0;font-size:0.84rem;">Nenhuma contagem salva ainda.</p>'
+        : state.history.map((item, idx) => `
+          <div class="h-item">
+            <div>
+              <strong style="font-size:0.88rem;">${item.label}</strong>
+              <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${item.date || ''}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <span class="h-val">${Number(item.value || 0).toLocaleString('pt-BR')}</span>
+              <button class="s-btn" type="button" onclick="delHist(${idx})">✕</button>
+            </div>
+          </div>`).join('');
+      openModal('m-hist');
+    }
+
+    function delHist(i) {
+      state.history.splice(i, 1);
+      saveState();
+      openHistory();
+      render();
+    }
+
+    function toggleTheme() {
+      state.dark = !state.dark;
+      saveState();
+      render();
+    }
+
+    function openModal(id) { document.getElementById(id).classList.add('open'); }
+    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+    if (location.protocol.startsWith('http')) {
+      const manifest = {
+        name: 'Contador',
+        short_name: 'Contador',
+        start_url: './',
+        display: 'standalone',
+        background_color: '#060A14',
+        theme_color: '#090F1E'
+      };
+      const link = document.createElement('link');
+      link.rel = 'manifest';
+      link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
+      document.head.appendChild(link);
+    }
+
+    loadState();
+    render();
+  </script>
+</body>
+</html>
