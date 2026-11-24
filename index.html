@@ -6,15 +6,12 @@
   <meta name="theme-color" content="#090F1E" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="Contador" />
-  <title>Contador</title>
-  <link id="app-icon-link" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%23090F1E'/%3E%3Crect x='10' y='10' width='108' height='108' rx='22' fill='none' stroke='%233B82F6' stroke-width='4'/%3E%3Ctext x='64' y='78' text-anchor='middle' font-family='system-ui,sans-serif' font-size='54' font-weight='900' fill='%23FFFFFF'%3E%2B1%3C/text%3E%3C/svg%3E" />
-  <link id="apple-icon-link" rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 128 128'%3E%3Crect width='128' height='128' rx='28' fill='%23090F1E'/%3E%3Crect x='10' y='10' width='108' height='108' rx='22' fill='none' stroke='%233B82F6' stroke-width='4'/%3E%3Ctext x='64' y='78' text-anchor='middle' font-family='system-ui,sans-serif' font-size='54' font-weight='900' fill='%23FFFFFF'%3E%2B1%3C/text%3E%3C/svg%3E" />
+  <title>Contador de Contagem Rápida</title>
   <style>
     :root {
       --bg: #EEF2FF;
-      --bg-grad: linear-gradient(180deg, #E0E7FF 0%, #F8FAFC 50%, #EFF6FF 100%);
+      --bg-grad: linear-gradient(180deg, #E0E7FF 0%, #F8FAFC 45%, #EFF6FF 100%);
       --card: #FFFFFF;
       --card-2: #F1F5F9;
       --text: #0F172A;
@@ -29,7 +26,7 @@
     }
     body.dark {
       --bg: #060A14;
-      --bg-grad: linear-gradient(180deg, #0D172E 0%, #070C18 55%, #091326 100%);
+      --bg-grad: linear-gradient(180deg, #0D172E 0%, #070C18 52%, #091326 100%);
       --card: #111A2E;
       --card-2: #17233D;
       --text: #F8FAFC;
@@ -42,6 +39,14 @@
       --ok: #34D399;
       --shadow: 0 22px 46px -16px rgba(0, 0, 0, 0.75);
     }
+    body[data-pal="emerald"] { --accent: #059669; --accent-2: #10B981; --accent-soft: rgba(16, 185, 129, 0.16); }
+    body.dark[data-pal="emerald"] { --accent: #10B981; --accent-2: #34D399; --accent-soft: rgba(16, 185, 129, 0.2); }
+    body[data-pal="violet"] { --accent: #7C3AED; --accent-2: #A855F7; --accent-soft: rgba(139, 92, 246, 0.16); }
+    body.dark[data-pal="violet"] { --accent: #8B5CF6; --accent-2: #C084FC; --accent-soft: rgba(139, 92, 246, 0.2); }
+    body[data-pal="amber"] { --accent: #D97706; --accent-2: #F59E0B; --accent-soft: rgba(245, 158, 11, 0.16); }
+    body.dark[data-pal="amber"] { --accent: #F59E0B; --accent-2: #FBBF24; --accent-soft: rgba(245, 158, 11, 0.2); }
+    body[data-pal="rose"] { --accent: #E11D48; --accent-2: #F43F5E; --accent-soft: rgba(244, 63, 94, 0.16); }
+    body.dark[data-pal="rose"] { --accent: #F43F5E; --accent-2: #FB7185; --accent-soft: rgba(244, 63, 94, 0.2); }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     html, body {
@@ -50,38 +55,81 @@
       background: var(--bg); background-image: var(--bg-grad); color: var(--text);
       user-select: none;
     }
-    button, input { font-family: inherit; touch-action: manipulation; }
+    button, input, textarea, select { font-family: inherit; touch-action: manipulation; }
     button { cursor: pointer; }
     button:disabled { opacity: 0.38; pointer-events: none; }
 
     .app {
       height: 100dvh; width: 100%; max-width: 520px; margin: 0 auto;
-      padding: 10px;
+      padding: 8px 10px 8px;
       display: flex; flex-direction: column; justify-content: space-between; gap: 8px;
     }
 
-    .row-top { display: flex; align-items: center; justify-content: space-between; gap: 6px; flex-shrink: 0; }
+    .row-top { display: flex; align-items: center; justify-content: space-between; gap: 5px; flex-shrink: 0; }
     .steps {
       display: flex; align-items: center; gap: 2px; padding: 3px; border-radius: 14px;
       background: var(--card); border: 1px solid var(--border);
     }
     .step-btn {
       border: none; background: transparent; color: var(--muted); font-weight: 800;
-      font-size: 0.74rem; padding: 7px 8px; border-radius: 11px;
+      font-size: 0.7rem; padding: 6px 6px; border-radius: 11px; white-space: nowrap;
     }
     .step-btn.active {
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #FFFFFF;
+      color: #FFFFFF; box-shadow: 0 4px 12px var(--accent-soft);
     }
-    .right-tools { display: flex; align-items: center; gap: 5px; }
+    .right-tools { display: flex; align-items: center; gap: 4px; margin-left: auto; }
     .tool-btn {
-      display: inline-flex; align-items: center; gap: 4px; padding: 7px 9px; border-radius: 14px;
+      display: inline-flex; align-items: center; gap: 4px; padding: 7px 7px; border-radius: 14px;
       background: var(--card); border: 1px solid var(--border); color: var(--text);
-      font-size: 0.74rem; font-weight: 800;
+      font-size: 0.72rem; font-weight: 800; white-space: nowrap;
+    }
+    .avatar-btn {
+      padding: 2px; width: 32px; height: 32px; border-radius: 11px;
+      background: var(--card); border: 2px solid var(--accent);
+      display: inline-flex; align-items: center; justify-content: center; overflow: hidden;
+      flex-shrink: 0;
+    }
+    .avatar-btn img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; display: block; }
+    .avatar-face { font-size: 0.86rem; font-weight: 900; line-height: 1; }
+
+    .frame-blue { border-color: #3B82F6 !important; box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.22); color: #60A5FA; }
+    .frame-emerald { border-color: #10B981 !important; box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.24); color: #34D399; }
+    .frame-violet { border-color: #8B5CF6 !important; box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.24); color: #C084FC; }
+    .frame-amber { border-color: #F59E0B !important; box-shadow: 0 0 0 2px rgba(245, 158, 11, 0.24); color: #FBBF24; }
+    .frame-rose { border-color: #F43F5E !important; box-shadow: 0 0 0 2px rgba(244, 63, 94, 0.24); color: #FB7185; }
+
+    .lock-btn.locked {
+      border-color: var(--danger);
+      background: rgba(244, 63, 94, 0.16);
+      color: var(--danger);
     }
     .badge {
-      padding: 2px 6px; border-radius: 999px; font-size: 0.66rem; font-weight: 800;
+      padding: 2px 5px; border-radius: 999px; font-size: 0.64rem; font-weight: 800;
       background: var(--accent-soft); color: var(--accent);
+    }
+
+    .mic-btn {
+      position: relative;
+      display: inline-flex; align-items: center; justify-content: center;
+      padding: 7px 8px; border-radius: 14px;
+      background: var(--card); border: 1.5px solid var(--border);
+      color: #64748B; transition: all 0.15s ease;
+    }
+    .mic-dot {
+      position: absolute; top: 4px; right: 4px;
+      width: 6px; height: 6px; border-radius: 50%;
+      background: #64748B; transition: all 0.15s ease;
+    }
+    .mic-btn.on {
+      color: #10B981;
+      border-color: rgba(16, 185, 129, 0.5);
+      background: rgba(16, 185, 129, 0.14);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.25);
+    }
+    .mic-btn.on .mic-dot {
+      background: #10B981;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.9);
     }
 
     .stage {
@@ -89,33 +137,68 @@
       background: linear-gradient(160deg, var(--card) 0%, var(--card-2) 100%);
       border: 1.5px solid var(--border); box-shadow: var(--shadow);
       display: flex; flex-direction: column; align-items: center; justify-content: center;
-      padding: 16px; text-align: center; overflow: hidden;
+      padding: 16px; text-align: center; overflow: hidden; cursor: pointer;
+      transition: border-color 0.2s ease;
     }
+    .stage.goal-hit { border-color: rgba(16, 185, 129, 0.65); }
     .stage:active { transform: scale(0.992); }
+    .stage-meta-bar {
+      position: absolute; top: 10px; left: 12px; right: 12px; z-index: 3;
+      display: flex; justify-content: space-between; align-items: center; gap: 6px;
+      pointer-events: none; font-size: 0.64rem; font-weight: 800; color: var(--muted);
+    }
+    .tiny-pill {
+      padding: 2px 7px; border-radius: 999px;
+      background: var(--card); border: 1px solid var(--border);
+      color: var(--muted); font-variant-numeric: tabular-nums;
+    }
+    .sup-pill {
+      display: none;
+      padding: 2px 7px; border-radius: 999px;
+      background: rgba(139, 92, 246, 0.18); border: 1px solid rgba(139, 92, 246, 0.48);
+      color: #C084FC; font-weight: 900; letter-spacing: 0.03em;
+    }
+    body.supervision .sup-pill { display: inline-block; }
+
     .stage-inner {
       position: relative; z-index: 2; pointer-events: none; width: 100%;
       display: flex; flex-direction: column; align-items: center; gap: 8px;
     }
+    .item-chip {
+      display: none; padding: 4px 12px; border-radius: 999px;
+      background: var(--accent-soft); color: var(--accent); font-size: 0.74rem; font-weight: 800;
+      max-width: 90%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .item-chip.show { display: inline-block; }
     .big-num {
-      font-size: clamp(4.4rem, 19vw, 6.6rem); font-weight: 900; line-height: 1;
+      font-size: clamp(4.2rem, 18vw, 6.4rem); font-weight: 900; line-height: 1;
       letter-spacing: -0.04em; font-variant-numeric: tabular-nums;
+      background: linear-gradient(135deg, var(--text) 20%, var(--accent) 130%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
       transition: transform 0.12s ease;
+    }
+    body.dark .big-num {
+      background: linear-gradient(135deg, #FFFFFF 25%, var(--accent-2) 140%);
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     }
     .big-num.bump { transform: scale(1.05); }
     .hint-chip {
       padding: 6px 14px; border-radius: 999px;
       background: var(--accent-soft); border: 1px solid var(--border);
-      color: var(--text); font-size: 0.8rem; font-weight: 700;
+      color: var(--text); font-size: 0.78rem; font-weight: 700;
     }
-    .feedback { font-size: 0.76rem; color: var(--muted); min-height: 18px; font-weight: 600; }
+    .feedback { font-size: 0.75rem; color: var(--muted); min-height: 16px; font-weight: 600; }
+    body.minimal .hint-chip,
+    body.minimal .feedback,
+    body.minimal .item-chip,
+    body.minimal .stage-meta-bar { display: none !important; }
 
-    .goal-box { display: none; margin-top: 4px; width: 100%; max-width: 260px; }
+    .goal-box { display: none; margin-top: 2px; width: 100%; max-width: 270px; }
     .goal-box.show { display: block; }
-    .goal-top { display: flex; justify-content: space-between; font-size: 0.74rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
-    .goal-track { height: 8px; border-radius: 999px; background: var(--card); overflow: hidden; border: 1px solid var(--border); }
+    .goal-top { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 4px; }
+    .goal-track { height: 7px; border-radius: 999px; background: var(--card); overflow: hidden; border: 1px solid var(--border); }
     .goal-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--accent), var(--accent-2)); border-radius: 999px; transition: width 0.2s ease; }
     .goal-fill.done { background: var(--ok); }
-
     .ripple {
       position: absolute; width: 170px; height: 170px; border-radius: 50%;
       background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
@@ -124,12 +207,25 @@
     }
     @keyframes rip { to { transform: translate(-50%, -50%) scale(1.6); opacity: 0; } }
 
-    .bottom { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+    .bottom { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; transition: all 0.18s ease; }
+    body.one-hand .bottom {
+      width: 78%;
+      margin-left: 0;
+      margin-right: auto;
+      padding-bottom: 4px;
+    }
+    body.one-hand .b-card,
+    body.one-hand .b-primary {
+      padding-top: 11px;
+      padding-bottom: 11px;
+      font-size: 0.78rem;
+    }
+
     .g4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
     .g4-2 { display: grid; grid-template-columns: 0.85fr 0.85fr 1fr 1.55fr; gap: 6px; }
     .b-card {
       padding: 13px 6px; border-radius: 15px; background: var(--card); border: 1px solid var(--border);
-      color: var(--text); font-size: 0.84rem; font-weight: 800;
+      color: var(--text); font-size: 0.84rem; font-weight: 800; white-space: nowrap;
     }
     .b-card:active { transform: scale(0.96); }
     .b-plus { border-color: var(--accent); color: var(--accent); }
@@ -139,9 +235,16 @@
     .b-primary {
       padding: 13px 10px; border-radius: 15px; border: none;
       background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      color: #FFFFFF; font-size: 0.84rem; font-weight: 800;
+      color: #FFFFFF; font-size: 0.84rem; font-weight: 800; white-space: nowrap;
+      box-shadow: 0 8px 20px -6px var(--accent-soft);
     }
     .b-primary:active { transform: scale(0.96); }
+
+    body.locked .stage,
+    body.locked .bottom button {
+      opacity: 0.45;
+      pointer-events: none;
+    }
 
     .modal {
       position: fixed; inset: 0; z-index: 60; background: rgba(2, 6, 23, 0.72);
@@ -150,66 +253,309 @@
     }
     .modal.open { display: flex; }
     .sheet {
-      width: 100%; max-width: 430px; max-height: 85dvh; overflow-y: auto;
-      border-radius: 24px; background: var(--card); border: 1.5px solid var(--border);
+      position: relative; overflow: hidden;
+      width: 100%; max-width: 440px; max-height: 86dvh; overflow-y: auto;
+      border-radius: 24px;
+      background:
+        radial-gradient(circle at 100% 0%, rgba(16, 185, 129, 0.14), transparent 45%),
+        radial-gradient(circle at 0% 100%, rgba(59, 130, 246, 0.14), transparent 48%),
+        var(--card);
+      border: 1.5px solid var(--border);
       padding: 16px; box-shadow: var(--shadow);
     }
-    .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .sheet-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; gap: 8px; }
     .sheet-title { font-size: 0.98rem; font-weight: 800; margin: 0; }
     .x-btn {
       border: 1px solid var(--border); background: var(--card-2); color: var(--muted);
       border-radius: 11px; padding: 6px 10px; font-weight: 700; font-size: 0.78rem;
     }
-    .inp {
+    .inp, .ta, .sel {
       width: 100%; padding: 11px 13px; border-radius: 13px;
       border: 1px solid var(--border); background: var(--card-2); color: var(--text);
       font-size: 0.92rem; font-weight: 700; outline: none;
     }
-    .inp:focus { border-color: var(--accent); }
+    .ta { min-height: 88px; resize: vertical; font-size: 0.78rem; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+    .inp:focus, .ta:focus, .sel:focus { border-color: var(--accent); }
     .q-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin: 10px 0; }
     .q-btn {
       padding: 8px; border-radius: 11px; border: 1px solid var(--border);
       background: var(--card-2); color: var(--text); font-size: 0.78rem; font-weight: 700;
     }
+    .mode-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+    .mode-btn {
+      padding: 10px 8px; border-radius: 13px; border: 1.5px solid var(--border);
+      background: var(--card-2); color: var(--muted); font-size: 0.78rem; font-weight: 800;
+    }
+    .mode-btn.active {
+      border-color: var(--accent); background: var(--accent-soft); color: var(--text);
+    }
     .m-actions { display: flex; gap: 8px; margin-top: 12px; }
     .m-actions > * { flex: 1; }
     .h-item {
       padding: 11px 12px; border-radius: 15px; background: var(--card-2); border: 1px solid var(--border);
-      margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; gap: 8px;
+      margin-bottom: 8px; display: flex; flex-direction: column; gap: 8px;
     }
+    .h-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
     .h-val { font-size: 1.15rem; font-weight: 850; color: var(--accent); font-variant-numeric: tabular-nums; }
+    .h-btns { display: flex; justify-content: flex-end; gap: 5px; flex-wrap: wrap; align-items: center; }
     .s-btn {
       padding: 6px 9px; border-radius: 10px; border: 1px solid var(--border);
       background: var(--card); color: var(--text); font-size: 0.72rem; font-weight: 700;
     }
-  </style>
-</head>
-<body class="dark">
+    .s-btn.on { border-color: var(--accent); background: var(--accent-soft); color: var(--accent); }
+
+    .dgoal-card {
+      padding: 11px 12px; border-radius: 15px; background: var(--card-2);
+      border: 1px solid var(--border); margin-top: 8px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .dgoal-card.focus { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent-soft); }
+    .dgoal-card.done { border-color: rgba(16, 185, 129, 0.55); }
+    .dgoal-card.off { opacity: 0.62; }
+    .dgoal-top { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .dgoal-name { font-size: 0.86rem; font-weight: 800; word-break: break-word; }
+    .dgoal-target { font-size: 0.96rem; font-weight: 850; color: var(--accent); white-space: nowrap; }
+    .dgoal-foot { display: flex; justify-content: space-between; align-items: center; gap: 6px; flex-wrap: wrap; }
+
+    .cfg-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 12px; border-radius: 15px; background: var(--card-2); border: 1px solid var(--border);
+      margin-bottom: 8px;
+    }
+    .cfg-title { font-size: 0.86rem; font-weight: 800; }
+    .cfg-desc { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
+    .sw {
+      width: 44px; height: 26px; border-radius: 999px; border: none; padding: 3px;
+      background: #475569; position: relative; transition: background 0.15s ease; flex-shrink: 0;
+    }
+    .sw.on { background: var(--ok); }
+    .sw-knob {
+      width: 20px; height: 20px; border-radius: 50%; background: #FFFFFF;
+      display: block; transform: translateX(0); transition: transform 0.15s ease;
+    }
+    .sw.on .sw-knob { transform: translateX(18px); }
+    .pal-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+    .pal-dot {
+      width: 28px; height: 28px; border-radius: 999px; border: 2px solid transparent;
+    }
+    .pal-dot.active { border-color: var(--text); transform: scale(1.1); }
+
+    .secret-box {
+      display: none;
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 16px;
+      background: linear-gradient(155deg, rgba(67, 20, 140, 0.28), rgba(15, 23, 42, 0.75));
+      border: 1.5px solid rgba(139, 92, 246, 0.45);
+    }
+    .secret-box.open { display: block; }
+    .secret-msg {
+      font-size: 0.72rem;
+      color: var(--muted);
+      margin-top: 6px;
+      min-height: 16px;
+      font-weight: 700;
+    }
+
+    /* Painel de ADM completo */
+    .adm-modal { z-index: 80; }
+    .adm-sheet {
+      width: 100%; max-width: 500px; max-height: 92dvh; overflow-y: auto;
+      border-radius: 26px;
+      background:
+        radial-gradient(circle at 0% 0%, rgba(124, 58, 237, 0.34), transparent 46%),
+        radial-gradient(circle at 100% 100%, rgba(16, 185, 129, 0.22), transparent 50%),
+        #0B0820;
+      border: 1.5px solid rgba(139, 92, 246, 0.55);
+      color: #F8FAFC;
+      padding: 16px;
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.85);
+    }
+    .adm-header {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding-bottom: 12px; border-bottom: 1px solid rgba(139, 92, 246, 0.3);
+      margin-bottom: 12px;
+    }
+    .adm-user { display: flex; align-items: center; gap: 10px; }
+    .adm-avatar {
+      width: 42px; height: 42px; border-radius: 14px;
+      background: linear-gradient(135deg, #6D28D9, #2563EB);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 1rem; color: #FFFFFF;
+      box-shadow: 0 0 18px rgba(109, 40, 217, 0.55);
+    }
+    .adm-nav {
+      display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px;
+      background: rgba(23, 18, 56, 0.9);
+      padding: 4px; border-radius: 15px;
+      border: 1px solid rgba(139, 92, 246, 0.32);
+      margin-bottom: 12px;
+    }
+    .adm-tab {
+      border: none; background: transparent; color: #A5B4FC;
+      font-size: 0.72rem; font-weight: 800; padding: 8px 4px; border-radius: 11px;
+    }
+    .adm-tab.active {
+      background: linear-gradient(135deg, #6D28D9, #4F46E5);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(109, 40, 217, 0.45);
+    }
+    .adm-pane { display: none; }
+    .adm-pane.active { display: block; }
+    .adm-kpi-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;
+      margin-bottom: 12px;
+    }
+    .adm-kpi {
+      padding: 11px 12px; border-radius: 16px;
+      background: rgba(24, 19, 62, 0.92);
+      border: 1px solid rgba(139, 92, 246, 0.3);
+    }
+    .adm-kpi-label { font-size: 0.68rem; font-weight: 800; color: #A5B4FC; text-transform: uppercase; letter-spacing: 0.04em; }
+    .adm-kpi-val { font-size: 1.25rem; font-weight: 900; color: #FFFFFF; margin-top: 3px; font-variant-numeric: tabular-nums; }
+    .adm-kpi-sub { font-size: 0.68rem; color: #34D399; margin-top: 2px; font-weight: 700; }
+    .adm-card {
+      padding: 12px; border-radius: 16px;
+      background: rgba(22, 17, 56, 0.88);
+      border: 1px solid rgba(139, 92, 246, 0.32);
+      margin-bottom: 10px;
+    }
+    .adm-card-title { font-size: 0.84rem; font-weight: 850; color: #F8FAFC; margin-bottom: 4px; }
+    .adm-card-desc { font-size: 0.72rem; color: #94A3B8; margin-bottom: 8px; line-height: 1.35; }
+    .adm-bar-track { height: 7px; border-radius: 999px; background: rgba(15, 23, 42, 0.8); overflow: hidden; margi
+                    <body class="dark">
+  <!-- 1ª VEZ -->
+  <section id="screen-init-profile" class="deco-screen screen-onboarding-1" aria-label="Criar perfil inicial">
+    <svg class="leaf-deco leaf-1" style="--r:-18deg" viewBox="0 0 120 120" fill="none">
+      <path d="M16 102C22 44 56 18 106 16C104 66 76 98 16 102Z" fill="#10B981"/>
+      <path d="M22 96C50 68 74 44 100 22" stroke="#A7F3D0" stroke-width="2.5" stroke-linecap="round"/>
+      <path d="M48 72L42 54M66 54L60 36M56 64L74 68" stroke="#A7F3D0" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <svg class="leaf-deco leaf-2" style="--r:28deg" viewBox="0 0 120 120" fill="none">
+      <path d="M104 98C96 42 62 18 14 16C18 66 46 96 104 98Z" fill="#34D399"/>
+      <path d="M98 92C70 66 46 42 20 22" stroke="#ECFDF5" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <svg class="leaf-deco leaf-3" style="--r:14deg" viewBox="0 0 120 120" fill="none">
+      <path d="M18 104C24 46 58 20 104 18C100 68 74 98 18 104Z" fill="#059669"/>
+      <path d="M24 98C52 70 76 46 98 24" stroke="#6EE7B7" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <svg class="leaf-deco leaf-4" style="--r:-24deg" viewBox="0 0 120 120" fill="none">
+      <path d="M102 100C94 44 60 18 16 18C20 66 48 96 102 100Z" fill="#10B981"/>
+      <path d="M96 94C68 68 44 44 22 24" stroke="#A7F3D0" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>
+    <svg class="leaf-deco leaf-5" style="--r:8deg" viewBox="0 0 120 120" fill="none">
+      <path d="M16 102C22 44 56 18 106 16C104 66 76 98 16 102Z" fill="#34D399"/>
+    </svg>
+    <svg class="leaf-deco leaf-6" style="--r:-16deg" viewBox="0 0 120 120" fill="none">
+      <path d="M104 98C96 42 62 18 14 16C18 66 46 96 104 98Z" fill="#10B981"/>
+    </svg>
+
+    <div class="deco-card">
+      <div class="deco-badge">🌿 Primeira abertura</div>
+      <h1 class="deco-title">Crie seu perfil</h1>
+      <p class="deco-sub">Monte seu perfil com nome, foto (opcional) e moldura para entrar no contador.</p>
+
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+        <div id="init-prof-preview" class="prof-pic" style="width:58px;height:58px;flex-shrink:0;">🌿</div>
+        <div style="flex:1;">
+          <input id="inp-init-name" class="inp" type="text" maxlength="20" placeholder="Seu nome ou apelido" oninput="onInitFormChange()" />
+        </div>
+      </div>
+
+      <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <label class="s-btn" style="display:inline-flex;align-items:center;gap:4px;">
+          Escolher foto
+          <input id="inp-init-photo" type="file" accept="image/*" style="display:none" onchange="onPickInitPhoto(event)" />
+        </label>
+        <button class="s-btn" type="button" onclick="clearInitPhoto()">Sem foto</button>
+      </div>
+
+      <div style="margin-bottom:14px;">
+        <div style="font-size:0.74rem;font-weight:800;color:#CBD5E1;">Moldura do perfil</div>
+        <div id="init-frame-row" class="pal-row">
+          <button class="pal-dot active" data-f="blue" style="background:#3B82F6" type="button" onclick="selectInitFrame('blue')" aria-label="Moldura azul"></button>
+          <button class="pal-dot" data-f="emerald" style="background:#10B981" type="button" onclick="selectInitFrame('emerald')" aria-label="Moldura verde"></button>
+          <button class="pal-dot" data-f="violet" style="background:#8B5CF6" type="button" onclick="selectInitFrame('violet')" aria-label="Moldura roxa"></button>
+          <button class="pal-dot" data-f="amber" style="background:#F59E0B" type="button" onclick="selectInitFrame('amber')" aria-label="Moldura âmbar"></button>
+          <button class="pal-dot" data-f="rose" style="background:#F43F5E" type="button" onclick="selectInitFrame('rose')" aria-label="Moldura rosa"></button>
+        </div>
+      </div>
+
+      <button class="b-primary" style="width:100%;padding:14px;" type="button" onclick="finishOnboarding()">Entrar no Contador →</button>
+    </div>
+  </section>
+
+  <!-- 2ª ABERTURA EM DIANTE -->
+  <section id="screen-profile-picker" class="deco-screen screen-picker" aria-label="Escolher perfil">
+    <svg class="leaf-deco leaf-1" style="--r:-18deg" viewBox="0 0 120 120" fill="none">
+      <path d="M16 102C22 44 56 18 106 16C104 66 76 98 16 102Z" fill="#10B981"/>
+    </svg>
+    <svg class="leaf-deco leaf-2" style="--r:28deg" viewBox="0 0 120 120" fill="none">
+      <path d="M104 98C96 42 62 18 14 16C18 66 46 96 104 98Z" fill="#34D399"/>
+    </svg>
+    <svg class="leaf-deco leaf-3" style="--r:14deg" viewBox="0 0 120 120" fill="none">
+      <path d="M18 104C24 46 58 20 104 18C100 68 74 98 18 104Z" fill="#8B5CF6"/>
+    </svg>
+    <svg class="leaf-deco leaf-4" style="--r:-24deg" viewBox="0 0 120 120" fill="none">
+      <path d="M102 100C94 44 60 18 16 18C20 66 48 96 102 100Z" fill="#10B981"/>
+    </svg>
+
+    <div class="deco-card">
+      <div class="deco-badge">🌿 Acesso rápido</div>
+      <h1 class="deco-title">Quem vai contar?</h1>
+      <p class="deco-sub">Escolha um perfil para entrar direto no contador.</p>
+
+      <div id="picker-grid" class="pick-grid"></div>
+
+      <button class="b-card" style="width:100%;padding:11px;" type="button" onclick="openFullProfilesFromPicker()">Gerenciar perfis / criar novo</button>
+    </div>
+  </section>
+
+  <!-- Tela padrão do contador -->
   <div class="app">
     <header class="row-top">
-      <div class="steps" role="group" aria-label="Passo">
+      <div class="steps" role="group" aria-label="Passo de contagem">
         <button id="step-1" class="step-btn" type="button" onclick="setStep(1)">1</button>
         <button id="step-5" class="step-btn" type="button" onclick="setStep(5)">5</button>
         <button id="step-10" class="step-btn active" type="button" onclick="setStep(10)">10</button>
         <button id="step-custom" class="step-btn" type="button" onclick="openStepModal()">...</button>
       </div>
       <div class="right-tools">
+        <button id="lock-btn" class="tool-btn lock-btn" type="button" onclick="toggleLock()" aria-label="Travar tela">🔓</button>
+        <button id="voice-btn" class="mic-btn" type="button" onclick="toggleVoice()" aria-label="Microfone">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+            <line x1="12" y1="19" x2="12" y2="23"></line>
+            <line x1="8" y1="23" x2="16" y2="23"></line>
+          </svg>
+          <span id="voice-dot" class="mic-dot"></span>
+        </button>
         <button id="open-hist" class="tool-btn" type="button" onclick="openHistory()">
           <span>Hist.</span>
           <span id="hist-badge" class="badge">0</span>
         </button>
+        <button class="tool-btn" type="button" onclick="openConfig()" aria-label="Configurações">⚙️</button>
         <button id="theme-btn" class="tool-btn" type="button" onclick="toggleTheme()" aria-label="Tema">🌓</button>
+        <button id="prof-btn" class="avatar-btn" type="button" onclick="openProfiles()" aria-label="Perfis"></button>
       </div>
     </header>
 
     <main id="stage" class="stage" onclick="onStageClick(event)">
+      <div class="stage-meta-bar">
+        <span id="pace-pill" class="tiny-pill">Ritmo: --</span>
+        <span id="sup-pill" class="sup-pill">SUPERVISÃO</span>
+        <span id="timer-pill" class="tiny-pill">00:00</span>
+      </div>
       <div class="stage-inner">
+        <div id="item-chip" class="item-chip"></div>
         <div id="num" class="big-num">0</div>
         <div id="hint" class="hint-chip">Toque na área para +10</div>
         <div id="feedback" class="feedback">Pronto para contar</div>
         <div id="goal-box" class="goal-box">
           <div class="goal-top">
             <span id="goal-label">Meta: 0 / 0</span>
+            <span id="goal-mode-tag" style="color:var(--accent);"></span>
             <span id="goal-pct">0%</span>
           </div>
           <div class="goal-track"><div id="goal-fill" class="goal-fill"></div></div>
@@ -233,11 +579,59 @@
     </footer>
   </div>
 
+  <!-- Modal Perfis -->
+  <div id="m-profiles" class="modal" onclick="if(event.target===this) closeModal('m-profiles')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <div>
+          <h2 class="sheet-title">🌿 Perfis</h2>
+          <div id="prof-sub" style="font-size:0.72rem;color:var(--muted);">Máximo de 3 perfis</div>
+        </div>
+        <button class="x-btn" type="button" onclick="closeModal('m-profiles')">✕</button>
+      </div>
+
+      <div id="prof-grid" class="prof-grid"></div>
+
+      <div class="prof-box">
+        <div id="prof-form-title" style="font-size:0.84rem;font-weight:800;margin-bottom:8px;">Criar ou editar perfil</div>
+        <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+          <div id="prof-draft-preview" class="prof-pic" style="width:46px;height:46px;flex-shrink:0;">😀</div>
+          <input id="inp-prof-name" class="inp" type="text" maxlength="20" placeholder="Nome do perfil" style="font-size:0.88rem;" oninput="onDraftProfileChange()" />
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          <label class="s-btn" style="display:inline-flex;align-items:center;gap:4px;">
+            Escolher foto
+            <input id="inp-prof-photo" type="file" accept="image/*" style="display:none" onchange="onPickProfilePhoto(event)" />
+          </label>
+          <button class="s-btn" type="button" onclick="clearProfilePhoto()">Sem foto</button>
+          <button id="btn-dup-prof" class="s-btn" type="button" onclick="duplicateSelectedProfile()">Duplicar</button>
+          <button id="btn-del-prof" class="s-btn b-danger" type="button" onclick="deleteCurrentProfile()">Excluir perfil</button>
+        </div>
+
+        <div style="margin-bottom:8px;">
+          <div style="font-size:0.72rem;font-weight:800;color:var(--muted);">Capa / moldura do perfil</div>
+          <div id="prof-frame-row" class="pal-row" style="margin-top:5px;">
+            <button class="pal-dot" data-f="blue" style="background:#3B82F6" type="button" onclick="selectDraftFrame('blue')" aria-label="Azul"></button>
+            <button class="pal-dot" data-f="emerald" style="background:#10B981" type="button" onclick="selectDraftFrame('emerald')" aria-label="Verde"></button>
+            <button class="pal-dot" data-f="violet" style="background:#8B5CF6" type="button" onclick="selectDraftFrame('violet')" aria-label="Roxo"></button>
+            <button class="pal-dot" data-f="amber" style="background:#F59E0B" type="button" onclick="selectDraftFrame('amber')" aria-label="Âmbar"></button>
+            <button class="pal-dot" data-f="rose" style="background:#F43F5E" type="button" onclick="selectDraftFrame('rose')" aria-label="Rosa"></button>
+          </div>
+        </div>
+
+        <div class="m-actions" style="margin-top:8px;">
+          <button class="b-card" type="button" onclick="prepareNewProfile()">Novo</button>
+          <button id="btn-save-prof" class="b-primary" type="button" onclick="saveProfileForm()">Salvar perfil</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- Modal Passo Personalizado -->
   <div id="m-step" class="modal" onclick="if(event.target===this) closeModal('m-step')">
     <div class="sheet">
       <div class="sheet-head">
-        <h2 class="sheet-title">Passo Personalizado</h2>
+        <h2 class="sheet-title">✨ Passo Personalizado</h2>
         <button class="x-btn" type="button" onclick="closeModal('m-step')">✕</button>
       </div>
       <input id="inp-step" class="inp" type="number" inputmode="numeric" min="1" placeholder="Ex: 2, 20, 50..." style="text-align:center;" />
@@ -254,57 +648,79 @@
     </div>
   </div>
 
-  <!-- Modal Valor -->
+  <!-- Modal Colocar ou Tirar Valor -->
   <div id="m-custom" class="modal" onclick="if(event.target===this) closeModal('m-custom')">
     <div class="sheet">
       <div class="sheet-head">
-        <h2 class="sheet-title">Adicionar Valor</h2>
+        <h2 class="sheet-title">⚡ Colocar ou Tirar Valor</h2>
         <button class="x-btn" type="button" onclick="closeModal('m-custom')">✕</button>
+      </div>
+      <div class="mode-row" style="margin-top:0;margin-bottom:10px;">
+        <button id="val-mode-add" class="mode-btn active" type="button" onclick="selectValMode('add')">+ Colocar</button>
+        <button id="val-mode-sub" class="mode-btn" type="button" onclick="selectValMode('sub')">- Tirar</button>
       </div>
       <input id="inp-custom" class="inp" type="number" inputmode="numeric" min="1" placeholder="Ex: 25" style="text-align:center;" />
       <div class="q-grid">
-        <button class="q-btn" type="button" onclick="quickVal(10)">+10</button>
-        <button class="q-btn" type="button" onclick="quickVal(25)">+25</button>
-        <button class="q-btn" type="button" onclick="quickVal(50)">+50</button>
-        <button class="q-btn" type="button" onclick="quickVal(100)">+100</button>
+        <button class="q-btn" type="button" onclick="quickVal(10)">10</button>
+        <button class="q-btn" type="button" onclick="quickVal(25)">25</button>
+        <button class="q-btn" type="button" onclick="quickVal(50)">50</button>
+        <button class="q-btn" type="button" onclick="quickVal(100)">100</button>
       </div>
       <div class="m-actions">
         <button class="b-card" type="button" onclick="closeModal('m-custom')">Cancelar</button>
-        <button class="b-primary" type="button" onclick="confirmCustom()">Adicionar</button>
+        <button id="btn-apply-val" class="b-primary" type="button" onclick="confirmCustom()">Colocar no Total</button>
       </div>
     </div>
   </div>
 
-  <!-- Modal Meta -->
+  <!-- Modal Meta + Metas Diárias Salvas -->
   <div id="m-goal" class="modal" onclick="if(event.target===this) closeModal('m-goal')">
     <div class="sheet">
       <div class="sheet-head">
-        <h2 class="sheet-title">Meta de Contagem</h2>
+        <h2 id="goal-modal-title" class="sheet-title">🎯 Meta de Contagem</h2>
         <button class="x-btn" type="button" onclick="closeModal('m-goal')">✕</button>
       </div>
+
+      <input id="inp-goal-name" class="inp" type="text" maxlength="50" placeholder="Nome da meta (ex: Lote da manhã)" style="font-size:0.88rem;font-weight:600;margin-bottom:8px;" />
       <input id="inp-goal" class="inp" type="number" inputmode="numeric" min="0" placeholder="Valor da meta (ex: 100)" style="text-align:center;" />
+
+      <div class="mode-row">
+        <button id="mode-once" class="mode-btn active" type="button" onclick="selectGoalMode('once')">Só uma vez</button>
+        <button id="mode-daily" class="mode-btn" type="button" onclick="selectGoalMode('daily')">Diária (salva)</button>
+      </div>
+
       <div class="m-actions">
         <button class="b-card b-danger" type="button" onclick="clearGoal()">Remover</button>
-        <button class="b-primary" type="button" onclick="saveGoal()">Salvar</button>
+        <button class="b-card" type="button" onclick="cancelEditGoal()">Limpar</button>
+        <button id="btn-save-goal" class="b-primary" type="button" onclick="saveGoal()">Salvar</button>
+      </div>
+
+      <div id="daily-goals-section" style="margin-top:16px;padding-top:12px;border-top:1px solid var(--border);">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;">
+          <strong style="font-size:0.84rem;">Metas diárias salvas (<span id="daily-goals-count">0</span>)</strong>
+          <button id="btn-clear-goals" class="s-btn b-danger" type="button" onclick="clearAllDailyGoals()">Limpar metas</button>
+        </div>
+        <div id="daily-goals-list"></div>
       </div>
     </div>
   </div>
 
-  <!-- Modal Concluir -->
+  <!-- Modal Concluir / Editar Histórico -->
   <div id="m-finish" class="modal" onclick="if(event.target===this) closeModal('m-finish')">
     <div class="sheet">
       <div class="sheet-head">
-        <h2 class="sheet-title">Concluir Contagem</h2>
+        <h2 id="fin-modal-title" class="sheet-title">✅ Concluir Contagem</h2>
         <button class="x-btn" type="button" onclick="closeModal('m-finish')">✕</button>
       </div>
-      <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:13px;background:var(--card-2);border:1px solid var(--border);margin-bottom:10px;">
+      <div id="fin-val-box" style="display:flex;justify-content:space-between;align-items:center;padding:11px 12px;border-radius:13px;background:var(--card-2);border:1px solid var(--border);margin-bottom:10px;">
         <span style="font-size:0.78rem;color:var(--muted);">Valor a salvar</span>
         <span id="fin-val" style="font-size:1.4rem;font-weight:850;color:var(--accent);">0</span>
       </div>
-      <input id="inp-label" class="inp" type="text" maxlength="80" placeholder="Nome ou observação (opcional)" style="font-size:0.9rem;font-weight:600;" />
+      <input id="inp-label" class="inp" type="text" maxlength="80" placeholder="Ex: Caixas lote A, Peças..." style="font-size:0.92rem;font-weight:600;margin-bottom:8px;" />
+      <input id="inp-edit-hist-val" class="inp" type="number" inputmode="numeric" min="0" placeholder="Valor" style="display:none;text-align:center;" />
       <div class="m-actions">
         <button class="b-card" type="button" onclick="closeModal('m-finish')">Cancelar</button>
-        <button class="b-primary" type="button" onclick="saveFinish()">Salvar e Zerar</button>
+        <button id="btn-save-finish" class="b-primary" type="button" onclick="saveFinish()">Salvar e Zerar</button>
       </div>
     </div>
   </div>
@@ -314,136 +730,1671 @@
     <div class="sheet">
       <div class="sheet-head">
         <div>
-          <h2 class="sheet-title">Histórico</h2>
+          <h2 class="sheet-title">📋 Histórico de Contagens</h2>
           <div id="hist-sub" style="font-size:0.72rem;color:var(--muted);">0 registros salvos</div>
         </div>
         <button class="x-btn" type="button" onclick="closeModal('m-hist')">✕</button>
       </div>
+      <div style="display:flex;gap:6px;margin-bottom:8px;">
+        <input id="inp-search" class="inp" type="search" placeholder="Buscar pelo nome..." oninput="renderHistoryList()" style="padding:9px 12px;font-size:0.84rem;font-weight:600;flex:1;" />
+        <button id="btn-filter-today" class="s-btn" type="button" onclick="toggleTodayFilter()">Hoje</button>
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:12px;">
+        <div style="display:flex;gap:5px;flex-wrap:wrap;">
+          <button class="s-btn" type="button" onclick="copySummary()">Resumo</button>
+          <button class="s-btn" type="button" onclick="exportCsv()">CSV</button>
+          <button class="s-btn" type="button" onclick="exportPdfView()">PDF</button>
+          <button class="s-btn" type="button" onclick="exportJson()">JSON</button>
+          <label class="s-btn">Importar<input type="file" accept=".json,application/json" style="display:none" onchange="importJson(event)" /></label>
+        </div>
+        <button id="btn-clear-hist" class="s-btn b-danger" type="button" onclick="clearHistory()">Limpar tudo</button>
+      </div>
       <div id="hist-list"></div>
+      <div id="pdf-preview-box" style="display:none;margin-top:12px;padding:12px;border-radius:14px;background:#FFFFFF;color:#0F172A;border:1px solid var(--border);"></div>
     </div>
   </div>
 
-  <script>
-    const STORE_KEY = 'contador_base_v1';
-    let state = {
-      count: 0,
-      step: 10,
-      goal: null,
-      goalHit: false,
-      dark: true,
-      lastText: 'Pronto para contar',
-      history: []
-    };
-    let prevSnapshot = null;
-    let resetArmed = false;
-    let resetTimer = null;
+  <!-- Modal Configurações (5 toques no título -> senha 1327 -> abre Painel de ADM) -->
+  <div id="m-cfg" class="modal" onclick="if(event.target===this) closeModal('m-cfg')">
+    <div class="sheet">
+      <div class="sheet-head">
+        <h2 id="cfg-secret-trigger" class="sheet-title" onclick="onCfgTitleTap()">⚙️ Configurações</h2>
+        <button class="x-btn" type="button" onclick="closeModal('m-cfg')">✕</button>
+      </div>
 
-    function loadState() {
-      try {
-        const raw = localStorage.getItem(STORE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          if (parsed && typeof parsed === 'object') {
-            state = {
-              ...state,
-              ...parsed,
-              history: Array.isArray(parsed.history) ? parsed.history : []
-            };
-          }
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-title">Modo mão única</div>
+          <div class="cfg-desc">Aproxima os comandos inferiores para alcançar com uma mão</div>
+        </div>
+        <button id="sw-onehand" class="sw" type="button" onclick="toggleCfg('oneHand')"><span class="sw-knob"></span></button>
+      </div>
+
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-title">Botões físicos</div>
+          <div class="cfg-desc">Ativa teclas físicas/volume/setas quando repassadas pela página</div>
+        </div>
+        <button id="sw-hw" class="sw" type="button" onclick="toggleCfg('hwKeys')"><span class="sw-knob"></span></button>
+      </div>
+
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-title">Modo minimalista</div>
+          <div class="cfg-desc">Esconde dicas e textos extras para focar no número</div>
+        </div>
+        <button id="sw-minimal" class="sw" type="button" onclick="toggleCfg('minimal')"><span class="sw-knob"></span></button>
+      </div>
+
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-title">Som de missão (~5s)</div>
+          <div class="cfg-desc">Toca fanfarra de ~5s ao bater a meta ou concluir</div>
+        </div>
+        <button id="sw-sound" class="sw" type="button" onclick="toggleCfg('sound')"><span class="sw-knob"></span></button>
+      </div>
+
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-title">Tela sempre acesa</div>
+          <div class="cfg-desc">Evita que a tela apague durante contagens longas</div>
+        </div>
+        <button id="sw-wake" class="sw" type="button" onclick="toggleCfg('wakeLock')"><span class="sw-knob"></span></button>
+      </div>
+
+      <div class="cfg-row">
+        <div>
+          <div class="cfg-title">Vibração no toque</div>
+          <div class="cfg-desc">Tremidinha leve ao tocar na área principal</div>
+        </div>
+        <button id="sw-vib" class="sw" type="button" onclick="toggleCfg('vibrate')"><span class="sw-knob"></span></button>
+      </div>
+
+      <div class="cfg-row" style="flex-direction:column;align-items:flex-start;">
+        <div>
+          <div class="cfg-title">Cor de destaque</div>
+          <div class="cfg-desc">Escolha a cor principal do visual</div>
+        </div>
+        <div class="pal-row">
+          <button class="pal-dot active" data-p="blue" style="background:#3B82F6" type="button" onclick="setPalette('blue')" aria-label="Azul"></button>
+          <button class="pal-dot" data-p="emerald" style="background:#10B981" type="button" onclick="setPalette('emerald')" aria-label="Verde"></button>
+          <button class="pal-dot" data-p="violet" style="background:#8B5CF6" type="button" onclick="setPalette('violet')" aria-label="Roxo"></button>
+          <button class="pal-dot" data-p="amber" style="background:#F59E0B" type="button" onclick="setPalette('amber')" aria-label="Âmbar"></button>
+          <button class="pal-dot" data-p="rose" style="background:#F43F5E" type="button" onclick="setPalette('rose')" aria-label="Rosa"></button>
+        </div>
+      </div>
+
+      <!-- Entrada oculta para o Painel de ADM -->
+      <div id="secret-reset-box" class="secret-box">
+        <div style="font-size:0.8rem;font-weight:850;margin-bottom:6px;color:#E9D5FF;">Acesso Administrativo</div>
+        <input id="inp-secret-pass" class="inp" type="password" inputmode="numeric" maxlength="10" placeholder="Senha numérica" style="font-size:0.88rem;" onkeydown="if(event.key==='Enter') checkSecretPass()" />
+        <div class="m-actions" style="margin-top:8px;">
+          <button id="btn-unlock-reset" class="b-primary" type="button" onclick="checkSecretPass()">Entrar no Painel</button>
+        </div>
+        <div id="secret-msg" class="secret-msg"></div>
+      </div>
+    </div>
+  </div>
+                    <!-- Painel de ADM Completo -->
+  <div id="m-adm" class="modal adm-modal" onclick="if(event.target===this) closeAdmPanel()">
+    <div class="adm-sheet">
+      <div class="adm-header">
+        <div class="adm-user">
+          <div class="adm-avatar">ADM</div>
+          <div>
+            <div style="font-size:0.96rem;font-weight:900;">Central Administrativa</div>
+            <div id="adm-sub-status" style="font-size:0.7rem;color:#A5B4FC;">Perfil ativo: Principal</div>
+          </div>
+        </div>
+        <button class="x-btn" style="background:rgba(30,27,75,0.9);color:#E0E7FF;border-color:rgba(139,92,246,0.45);" type="button" onclick="closeAdmPanel()">✕</button>
+      </div>
+
+      <div id="adm-toast" class="adm-toast"></div>
+
+      <nav class="adm-nav" aria-label="Seções do painel administrativo">
+        <button id="adm-tab-dash" class="adm-tab active" type="button" onclick="switchAdmTab('dash')">Visão/Log</button>
+        <button id="adm-tab-manip" class="adm-tab" type="button" onclick="switchAdmTab('manip')">Manipular</button>
+        <button id="adm-tab-rules" class="adm-tab" type="button" onclick="switchAdmTab('rules')">Capac./Sup.</button>
+        <button id="adm-tab-sys" class="adm-tab" type="button" onclick="switchAdmTab('sys')">Backup/Reset</button>
+      </nav>
+
+      <!-- ABA 1: VISÃO GERAL, CONSOLIDADO E LOG -->
+      <div id="adm-pane-dash" class="adm-pane active">
+        <div class="adm-kpi-grid">
+          <div class="adm-kpi">
+            <div class="adm-kpi-label">Contador Atual</div>
+            <div id="kpi-cur-count" class="adm-kpi-val">0</div>
+            <div id="kpi-cur-prof" class="adm-kpi-sub">Perfil ativo</div>
+          </div>
+          <div class="adm-kpi">
+            <div class="adm-kpi-label">Soma do Perfil</div>
+            <div id="kpi-prof-sum" class="adm-kpi-val">0</div>
+            <div id="kpi-prof-regs" class="adm-kpi-sub">0 registros</div>
+          </div>
+          <div class="adm-kpi">
+            <div class="adm-kpi-label">Total Todos Perfis</div>
+            <div id="kpi-all-sum" class="adm-kpi-val">0</div>
+            <div id="kpi-all-profs" class="adm-kpi-sub">1 perfil ativo</div>
+          </div>
+          <div class="adm-kpi">
+            <div class="adm-kpi-label">Armazenamento</div>
+            <div id="kpi-storage-kb" class="adm-kpi-val">0 KB</div>
+            <div id="kpi-goals-count" class="adm-kpi-sub">0 metas diárias</div>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Capacidade e Supervisão</div>
+          <div id="adm-cap-summary" class="adm-card-desc">Perfis: 1 / 3 · Supervisão: Desligada</div>
+          <div class="adm-bar-track"><div id="adm-cap-bar" class="adm-bar-fill" style="width:33%;"></div></div>
+        </div>
+
+        <div class="adm-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;margin-bottom:8px;">
+            <div class="adm-card-title" style="margin:0;">Log de Auditoria ADM (<span id="adm-log-count">0</span>)</div>
+            <div style="display:flex;gap:5px;">
+              <button class="s-btn" type="button" onclick="exportAdmLog()">Copiar Log</button>
+              <button id="btn-clear-adm-log" class="s-btn b-danger" type="button" onclick="clearAdmLogOnly()">Limpar</button>
+            </div>
+          </div>
+          <div id="adm-log-list" class="adm-log-list"></div>
+        </div>
+      </div>
+
+      <!-- ABA 2: MANIPULAÇÃO DIRETA E RETROATIVA -->
+      <div id="adm-pane-manip" class="adm-pane">
+        <div class="adm-card">
+          <div class="adm-card-title">Injeção Silenciosa no Contador</div>
+          <div class="adm-card-desc">Define um valor exato sem som, vibração, alteração de ritmo ou disparo de meta.</div>
+          <div style="display:flex;gap:8px;">
+            <input id="adm-silent-val" class="adm-inp" type="number" inputmode="numeric" min="0" placeholder="Valor exato (ex: 250)" />
+            <button class="b-primary" type="button" onclick="admSetSilentCount()">Aplicar</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Injetar Registro Retroativo</div>
+          <div class="adm-card-desc">Adiciona uma contagem diretamente no histórico com data e hora personalizadas.</div>
+          <input id="adm-retro-label" class="adm-inp" type="text" maxlength="80" placeholder="Nome do item (ex: Lote noturno)" style="margin-bottom:8px;" />
+          <div class="adm-row-2">
+            <input id="adm-retro-val" class="adm-inp" type="number" inputmode="numeric" min="0" placeholder="Valor" />
+            <input id="adm-retro-date" class="adm-inp" type="text" maxlength="40" placeholder="DD/MM/AAAA, HH:MM:SS" />
+          </div>
+          <button class="b-primary" style="width:100%;" type="button" onclick="admInsertRetroHistory()">Injetar no Histórico</button>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Editar Data/Hora ou Valor de Registro</div>
+          <div class="adm-card-desc">Altera diretamente qualquer registro existente no histórico do perfil atual.</div>
+          <select id="adm-edit-hist-sel" class="adm-sel" style="margin-bottom:8px;" onchange="admLoadSelectedHistItem()"></select>
+          <input id="adm-edit-hist-label" class="adm-inp" type="text" maxlength="80" placeholder="Nome" style="margin-bottom:8px;" />
+          <div class="adm-row-2">
+            <input id="adm-edit-hist-val" class="adm-inp" type="number" inputmode="numeric" min="0" placeholder="Valor" />
+            <input id="adm-edit-hist-date" class="adm-inp" type="text" maxlength="40" placeholder="Data e hora" />
+          </div>
+          <button class="b-primary" style="width:100%;" type="button" onclick="admSaveEditedHistItem()">Salvar Alteração</button>
+        </div>
+      </div>
+
+      <!-- ABA 3: CAPACIDADE, TRAVAS E MODO SUPERVISÃO -->
+      <div id="adm-pane-rules" class="adm-pane">
+        <div class="adm-card">
+          <div class="adm-card-title">Modo Supervisão</div>
+          <div class="adm-card-desc">Bloqueia zerar o contador, excluir/limpar histórico e alterar configurações comuns na interface normal.</div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;">
+            <span id="adm-sup-state-txt" style="font-size:0.8rem;font-weight:800;color:#C084FC;">Supervisão desativada</span>
+            <button id="sw-adm-supervision" class="sw" type="button" onclick="toggleAdmSupervision()"><span class="sw-knob"></span></button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Controle de Capacidade e Teto</div>
+          <div class="adm-card-desc">Ajuste o limite máximo de perfis (1 a 10) e um teto opcional para o contador (0 = sem limite).</div>
+          <div class="adm-row-2">
+            <div>
+              <div style="font-size:0.68rem;color:#A5B4FC;font-weight:800;margin-bottom:4px;">Máx. de perfis (1–10)</div>
+              <input id="adm-max-profiles" class="adm-inp" type="number" inputmode="numeric" min="1" max="10" />
+            </div>
+            <div>
+              <div style="font-size:0.68rem;color:#A5B4FC;font-weight:800;margin-bottom:4px;">Teto contagem (0=livre)</div>
+              <input id="adm-max-count" class="adm-inp" type="number" inputmode="numeric" min="0" />
+            </div>
+          </div>
+          <div style="margin-bottom:8px;">
+            <div style="font-size:0.68rem;color:#A5B4FC;font-weight:800;margin-bottom:4px;">Auto-travar por inatividade</div>
+            <select id="adm-idle-lock" class="adm-sel">
+              <option value="0">Desativado</option>
+              <option value="2">Após 2 minutos parado</option>
+              <option value="5">Após 5 minutos parado</option>
+              <option value="10">Após 10 minutos parado</option>
+              <option value="15">Após 15 minutos parado</option>
+            </select>
+          </div>
+          <button class="b-primary" style="width:100%;" type="button" onclick="admSaveCapacityRules()">Salvar Regras</button>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Proteção Individual de Perfis</div>
+          <div class="adm-card-desc">Perfis protegidos não podem ser renomeados, alterados ou excluídos no modal comum.</div>
+          <div id="adm-prof-locks-list" style="display:flex;flex-direction:column;gap:6px;"></div>
+        </div>
+      </div>
+
+      <!-- ABA 4: BACKUP COMPLETO, SIMULADOR E RESET SELETIVO -->
+      <div id="adm-pane-sys" class="adm-pane">
+        <div class="adm-card">
+          <div class="adm-card-title">Backup Completo do Sistema</div>
+          <div class="adm-card-desc">Exporta ou restaura todos os perfis, históricos, metas, regras e logs em JSON.</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+            <button class="s-btn" type="button" onclick="admExportFullBackup()">Baixar Backup (.json)</button>
+            <button class="s-btn" type="button" onclick="admCopyFullBackup()">Copiar JSON</button>
+            <label class="s-btn">Carregar Arquivo<input type="file" accept=".json,application/json" style="display:none" onchange="admLoadBackupFile(event)" /></label>
+          </div>
+          <textarea id="adm-backup-json" class="adm-ta" placeholder="Cole aqui um backup JSON completo para validar e restaurar..."></textarea>
+          <div id="adm-backup-preview" style="font-size:0.72rem;color:#A5B4FC;margin-top:6px;min-height:16px;"></div>
+          <div class="m-actions" style="margin-top:8px;">
+            <button class="b-card" style="background:#1E1B4B;color:#E0E7FF;border-color:rgba(139,92,246,0.4);" type="button" onclick="admPreviewBackupJson()">Validar JSON</button>
+            <button id="btn-adm-restore" class="b-primary" type="button" onclick="admRestoreBackupJson()">Restaurar Sistema</button>
+          </div>
+        </div>
+
+        <div class="adm-card">
+          <div class="adm-card-title">Reset Seletivo por Módulo (Perfil Atual)</div>
+          <div class="adm-card-desc">Limpa apenas a área escolhida sem afetar os outros dados ou perfis.</div>
+          <div class="adm-row-2" style="margin-bottom:0;">
+            <button id="btn-sel-reset-count" class="b-card b-danger" type="button" onclick="admSelectiveReset('count')">Zerar Contador</button>
+            <button id="btn-sel-reset-hist" class="b-card b-danger" type="button" onclick="admSelectiveReset('history')">Limpar Histórico</button>
+            <button id="btn-sel-reset-goals" class="b-card b-danger" type="button" onclick="admSelectiveReset('goals')">Limpar Metas</button>
+            <button id="btn-sel-reset-log" class="b-card b-danger" type="button" onclick="admSelectiveReset('log')">Limpar Log ADM</button>
+          </div>
+        </div>
+
+        <div class="adm-card" style="margin-bottom:0;">
+          <div class="adm-card-title">Diagnóstico & Simulação</div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;">
+            <button class="s-btn" type="button" onclick="admTestMissionAlert()">Testar Som/Vibração</button>
+            <button class="s-btn" type="button" onclick="admSimulateNewDay()">Simular Novo Dia</button>
+            <button class="s-btn" type="button" onclick="admOpenProfilePickerNow()">Abrir Seletor de Perfil</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+                      <script>
+    const STORE_KEY = 'contador_perfis_v16';
+    const SECRET_CODE = '1327';
+
+    function todayKey() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    }
+
+    function defaultAdminConfig() {
+      return {
+        supervision: false,
+        maxProfiles: 3,
+        maxCount: 0,
+        idleLockMinutes: 0,
+        logs: []
+      };
+    }
+
+    function defaultProfileData(name = 'Perfil 1', photo = '', frame = 'blue') {
+      return {
+        name,
+        photo,
+        frame,
+        protected: false,
+        count: 0,
+        step: 10,
+        goal: null,
+        goalName: '',
+        goalMode: 'once',
+        goalDay: todayKey(),
+        goalCompleted: false,
+        activeDailyId: null,
+        dailyGoals: [],
+        dark: true,
+        palette: 'blue',
+        locked: false,
+        activeLabel: null,
+        lastText: 'Pronto para contar',
+        history: [],
+        cfg: {
+          oneHand: false,
+          sound: true,
+          wakeLock: false,
+          vibrate: true,
+          minimal: false,
+          hwKeys: true
         }
-      } catch (_) {}
+      };
     }
 
-    function saveState() {
+    let root = {
+      onboardingDone: false,
+      activeProfileId: 'p1',
+      admin: defaultAdminConfig(),
+      profiles: [
+        { id: 'p1', ...defaultProfileData('Principal', '', 'blue') }
+      ]
+    };
+
+    let state = root.profiles[0];
+    let showPickerOnOpen = true;
+
+    let initDraftName = '';
+    let initDraftPhoto = '';
+    let initDraftFrame = 'blue';
+
+    let draftGoalMode = 'once';
+    let editingDailyIdx = null;
+    let draftValMode = 'add';
+    let editingHistIdx = null;
+    let onlyToday = false;
+    let prevSnapshot = null;
+    let wakeSentinel = null;
+    let audioCtx = null;
+
+    let sessionStartMs = null;
+    let sessionElapsedSec = 0;
+    let tapIntervals = [];
+    let lastTapMs = null;
+    let paceLabel = 'Ritmo: --';
+    let lastActivityMs = Date.now();
+
+    let formProfileId = null;
+    let draftProfName = '';
+    let draftProfPhoto = '';
+    let draftProfFrame = 'blue';
+
+    let cfgTapCount = 0;
+    let cfgTapTimer = null;
+    let admUnlocked = false;
+    let activeAdmTab = 'dash';
+
+    let armSelectiveKey = null;
+    let armSelectiveTimer = null;
+    let armRestoreBackup = false;
+    let armRestoreTimer = null;
+    let armClearAdmLog = false;
+    let armClearAdmLogTimer = null;
+
+    let armResetTimer = null;
+    let resetArmed = false;
+    let armClearHist = false;
+    let clearHistTimer = null;
+    let armClearGoals = false;
+    let clearGoalsTimer = null;
+    let armedHistDelIdx = null;
+    let histDelTimer = null;
+    let armedGoalDelIdx = null;
+    let goalDelTimer = null;
+    let armDelProfile = false;
+    let delProfileTimer = null;
+
+    function getMaxProfiles() {
+      const m = parseInt(root.admin && root.admin.maxProfiles, 10);
+      return Number.isFinite(m) ? Math.min(10, Math.max(1, m)) : 3;
+    }
+
+    function isSupervisionOn() {
+      return Boolean(root.admin && root.admin.supervision);
+    }
+
+    function logAdminAction(action) {
+      if (!root.admin) root.admin = defaultAdminConfig();
+      if (!Array.isArray(root.admin.logs)) root.admin.logs = [];
+      root.admin.logs.unshift({
+        id: Date.now() + Math.random(),
+        at: new Date().toLocaleString('pt-BR'),
+        profile: state ? state.name : 'Sistema',
+        action
+      });
+      if (root.admin.logs.length > 80) root.admin.logs.length = 80;
+    }
+
+    function showAdmToast(msg) {
+      const el = document.getElementById('adm-toast');
+      if (el) el.textContent = msg || '';
+    }
+
+    function resetSecretPanel() {
+      cfgTapCount = 0;
+      if (cfgTapTimer) { clearTimeout(cfgTapTimer); cfgTapTimer = null; }
+      const box = document.getElementById('secret-reset-box');
+      const inp = document.getElementById('inp-secret-pass');
+      const msg = document.getElementById('secret-msg');
+      if (box) box.classList.remove('open');
+      if (inp) inp.value = '';
+      if (msg) msg.textContent = '';
+    }
+
+    function onCfgTitleTap() {
+      cfgTapCount += 1;
+      if (cfgTapTimer) clearTimeout(cfgTapTimer);
+      cfgTapTimer = setTimeout(() => { cfgTapCount = 0; }, 1800);
+
+      if (cfgTapCount >= 5) {
+        cfgTapCount = 0;
+        const box = document.getElementById('secret-reset-box');
+        const inp = document.getElementById('inp-secret-pass');
+        const msg = document.getElementById('secret-msg');
+        if (box) {
+          box.classList.add('open');
+          if (msg) msg.textContent = 'Digite a senha de ADM.';
+          if (inp) { inp.value = ''; inp.focus(); }
+        }
+      }
+    }
+
+    function checkSecretPass() {
+      const inp = document.getElementById('inp-secret-pass');
+      const msg = document.getElementById('secret-msg');
+      const typed = String((inp && inp.value) || '').trim();
+
+      if (typed === SECRET_CODE) {
+        admUnlocked = true;
+        resetSecretPanel();
+        closeModal('m-cfg');
+        openAdmPanel();
+      } else {
+        admUnlocked = false;
+        if (msg) msg.textContent = 'Senha incorreta.';
+      }
+    }
+
+    function openAdmPanel() {
+      if (!admUnlocked) return;
+      activeAdmTab = 'dash';
+      showAdmToast('');
+      resetAdmConfirmations();
+      renderAdmPanel();
+      document.getElementById('m-adm').classList.add('open');
+    }
+
+    function closeAdmPanel() {
+      admUnlocked = false;
+      resetAdmConfirmations();
+      document.getElementById('m-adm').classList.remove('open');
+      render();
+    }
+
+    function switchAdmTab(tab) {
+      activeAdmTab = tab;
+      resetAdmConfirmations();
+      ['dash', 'manip', 'rules', 'sys'].forEach(t => {
+        const b = document.getElementById('adm-tab-' + t);
+        const p = document.getElementById('adm-pane-' + t);
+        if (b) b.classList.toggle('active', t === tab);
+        if (p) p.classList.toggle('active', t === tab);
+      });
+      renderAdmPanel();
+    }
+
+    function resetAdmConfirmations() {
+      armSelectiveKey = null;
+      if (armSelectiveTimer) { clearTimeout(armSelectiveTimer); armSelectiveTimer = null; }
+      const mapSel = {
+        count: 'Zerar Contador',
+        history: 'Limpar Histórico',
+        goals: 'Limpar Metas',
+        log: 'Limpar Log ADM'
+      };
+      Object.keys(mapSel).forEach(k => {
+        const b = document.getElementById('btn-sel-reset-' + k);
+        if (b) b.textContent = mapSel[k];
+      });
+
+      armRestoreBackup = false;
+      if (armRestoreTimer) { clearTimeout(armRestoreTimer); armRestoreTimer = null; }
+      const br = document.getElementById('btn-adm-restore');
+      if (br) br.textContent = 'Restaurar Sistema';
+
+      armClearAdmLog = false;
+      if (armClearAdmLogTimer) { clearTimeout(armClearAdmLogTimer); armClearAdmLogTimer = null; }
+      const bl = document.getElementById('btn-clear-adm-log');
+      if (bl) bl.textContent = 'Limpar';
+    }
+
+    function renderAdmPanel() {
+      if (!admUnlocked) return;
+      document.getElementById('adm-sub-status').textContent =
+        `Perfil ativo: ${state.name} · ${isSupervisionOn() ? 'Supervisão ATIVA' : 'Supervisão desligada'}`;
+
+      const profSum = state.history.reduce((a, b) => a + (Number(b.value) || 0), 0);
+      const allHistSum = root.profiles.reduce((acc, p) => {
+        const s = (p.history || []).reduce((x, y) => x + (Number(y.value) || 0), 0);
+        return acc + s + (Number(p.count) || 0);
+      }, 0);
+      const bytes = new Blob([JSON.stringify(root)]).size;
+      const kb = (bytes / 1024).toFixed(1);
+
+      document.getElementById('kpi-cur-count').textContent = state.count.toLocaleString('pt-BR');
+      document.getElementById('kpi-cur-prof').textContent = state.name;
+      document.getElementById('kpi-prof-sum').textContent = profSum.toLocaleString('pt-BR');
+      document.getElementById('kpi-prof-regs').textContent = `${state.history.length} registros`;
+      document.getElementById('kpi-all-sum').textContent = allHistSum.toLocaleString('pt-BR');
+      document.getElementById('kpi-all-profs').textContent = `${root.profiles.length} ${root.profiles.length === 1 ? 'perfil' : 'perfis'}`;
+      document.getElementById('kpi-storage-kb').textContent = `${kb} KB`;
+      document.getElementById('kpi-goals-count').textContent = `${state.dailyGoals.length} metas diárias`;
+
+      const maxP = getMaxProfiles();
+      const capPct = Math.min(100, Math.round((root.profiles.length / maxP) * 100));
+      document.getElementById('adm-cap-summary').textContent =
+        `Perfis: ${root.profiles.length} / ${maxP} · Teto contador: ${root.admin.maxCount > 0 ? root.admin.maxCount.toLocaleString('pt-BR') : 'Livre'} · Supervisão: ${isSupervisionOn() ? 'ATIVA' : 'Desligada'}`;
+      document.getElementById('adm-cap-bar').style.width = capPct + '%';
+
+      const logs = root.admin.logs || [];
+      document.getElementById('adm-log-count').textContent = logs.length;
+      const logBox = document.getElementById('adm-log-list');
+      logBox.innerHTML = !logs.length
+        ? '<div style="font-size:0.74rem;color:#94A3B8;text-align:center;padding:10px 0;">Nenhuma ação administrativa registrada ainda.</div>'
+        : logs.map(l => `
+          <div class="adm-log-row">
+            <div style="display:flex;justify-content:space-between;gap:6px;color:#A5B4FC;font-size:0.66rem;font-weight:800;">
+              <span>${l.profile}</span>
+              <span>${l.at}</span>
+            </div>
+            <div style="color:#F8FAFC;margin-top:2px;font-weight:700;">${l.action}</div>
+          </div>`).join('');
+
+      // Aba Manipular: seletor de histórico
+      const sel = document.getElementById('adm-edit-hist-sel');
+      if (sel) {
+        if (!state.history.length) {
+          sel.innerHTML = '<option value="">Sem registros no histórico</option>';
+          document.getElementById('adm-edit-hist-label').value = '';
+          document.getElementById('adm-edit-hist-val').value = '';
+          document.getElementById('adm-edit-hist-date').value = '';
+        } else {
+          const prevIdx = sel.value;
+          sel.innerHTML = state.history.map((h, i) =>
+            `<option value="${i}">#${i + 1} · ${h.label} (${Number(h.value || 0).toLocaleString('pt-BR')})</option>`
+          ).join('');
+          if (prevIdx !== '' && state.history[Number(prevIdx)]) sel.value = prevIdx;
+          admLoadSelectedHistItem();
+        }
+      }
+
+      // Aba Regras / Capacidade
+      const swSup = document.getElementById('sw-adm-supervision');
+      if (swSup) swSup.classList.toggle('on', isSupervisionOn());
+      const supTxt = document.getElementById('adm-sup-state-txt');
+      if (supTxt) supTxt.textContent = isSupervisionOn() ? 'Supervisão ATIVA (travas ligadas)' : 'Supervisão desativada';
+
+      document.getElementById('adm-max-profiles').value = maxP;
+      document.getElementById('adm-max-count').value = Number(root.admin.maxCount) || 0;
+      document.getElementById('adm-idle-lock').value = String(Number(root.admin.idleLockMinutes) || 0);
+
+      const lockList = document.getElementById('adm-prof-locks-list');
+      if (lockList) {
+        lockList.innerHTML = root.profiles.map(p => `
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 10px;border-radius:12px;background:rgba(12,10,34,0.85);border:1px solid rgba(139,92,246,0.24);">
+            <div>
+              <div style="font-size:0.8rem;font-weight:800;">${p.name} ${p.id === state.id ? '(Atual)' : ''}</div>
+              <div style="font-size:0.68rem;color:#94A3B8;">${p.protected ? 'Protegido contra edição/exclusão' : 'Edição comum liberada'}</div>
+            </div>
+            <button class="s-btn ${p.protected ? 'on' : ''}" type="button" onclick="admToggleProfileProtect('${p.id}')">
+              ${p.protected ? '🔒 Protegido' : '🔓 Livre'}
+            </button>
+          </div>`).join('');
+      }
+    }
+
+    function admSetSilentCount() {
+      if (!admUnlocked) return;
+      const raw = parseInt(document.getElementById('adm-silent-val').value, 10);
+      if (isNaN(raw) || raw < 0) {
+        showAdmToast('Informe um número válido (>= 0).');
+        return;
+      }
+      const old = state.count;
+      state.count = raw;
+      state.lastText = `Ajuste ADM: ${raw.toLocaleString('pt-BR')}`;
+      logAdminAction(`Injeção silenciosa no contador (${old} → ${raw})`);
+      saveState();
+      render(true);
+      renderAdmPanel();
+      showAdmToast(`Contador definido silenciosamente para ${raw.toLocaleString('pt-BR')}.`);
+    }
+
+    function admInsertRetroHistory() {
+      if (!admUnlocked) return;
+      const label = (document.getElementById('adm-retro-label').value || '').trim() || 'Registro ADM';
+      const val = Math.max(0, parseInt(document.getElementById('adm-retro-val').value, 10) || 0);
+      const dt = (document.getElementById('adm-retro-date').value || '').trim() || new Date().toLocaleString('pt-BR');
+      state.history.unshift({
+        id: Date.now() + Math.random(),
+        label,
+        value: val,
+        dayKey: todayKey(),
+        date: dt
+      });
+      logAdminAction(`Registro retroativo inserido: "${label}" (${val}) em ${dt}`);
+      document.getElementById('adm-retro-label').value = '';
+      document.getElementById('adm-retro-val').value = '';
+      document.getElementById('adm-retro-date').value = '';
+      saveState();
+      render();
+      renderAdmPanel();
+      showAdmToast('Registro retroativo adicionado ao histórico.');
+    }
+
+    function admLoadSelectedHistItem() {
+      const sel = document.getElementById('adm-edit-hist-sel');
+      const idx = parseInt(sel && sel.value, 10);
+      const item = !isNaN(idx) ? state.history[idx] : null;
+      if (!item) return;
+      document.getElementById('adm-edit-hist-label').value = item.label || '';
+      document.getElementById('adm-edit-hist-val').value = Number(item.value) || 0;
+      document.getElementById('adm-edit-hist-date').value = item.date || '';
+    }
+
+    function admSaveEditedHistItem() {
+      if (!admUnlocked) return;
+      const sel = document.getElementById('adm-edit-hist-sel');
+      const idx = parseInt(sel && sel.value, 10);
+      const item = !isNaN(idx) ? state.history[idx] : null;
+      if (!item) {
+        showAdmToast('Nenhum registro selecionado.');
+        return;
+      }
+      const newLabel = (document.getElementById('adm-edit-hist-label').value || '').trim() || item.label;
+      const newVal = Math.max(0, parseInt(document.getElementById('adm-edit-hist-val').value, 10) || 0);
+      const newDate = (document.getElementById('adm-edit-hist-date').value || '').trim() || item.date;
+      item.label = newLabel;
+      item.value = newVal;
+      item.date = newDate;
+      logAdminAction(`Registro #${idx + 1} editado via ADM: "${newLabel}" (${newVal}) · ${newDate}`);
+      saveState();
+      render();
+      renderAdmPanel();
+      showAdmToast('Registro do histórico atualizado.');
+    }
+
+    function toggleAdmSupervision() {
+      if (!admUnlocked) return;
+      root.admin.supervision = !isSupervisionOn();
+      logAdminAction(root.admin.supervision ? 'Modo Supervisão ATIVADO' : 'Modo Supervisão DESATIVADO');
+      saveState();
+      render();
+      renderAdmPanel();
+      showAdmToast(root.admin.supervision ? 'Modo Supervisão ativado.' : 'Modo Supervisão desativado.');
+    }
+
+    function admSaveCapacityRules() {
+      if (!admUnlocked) return;
+      const rawMaxP = parseInt(document.getElementById('adm-max-profiles').value, 10);
+      const clampedP = Math.min(10, Math.max(root.profiles.length, isNaN(rawMaxP) ? 3 : rawMaxP));
+      const rawMaxC = Math.max(0, parseInt(document.getElementById('adm-max-count').value, 10) || 0);
+      const idleMin = Math.max(0, parseInt(document.getElementById('adm-idle-lock').value, 10) || 0);
+
+      root.admin.maxProfiles = clampedP;
+      root.admin.maxCount = rawMaxC;
+      root.admin.idleLockMinutes = idleMin;
+      logAdminAction(`Regras salvas: máx. perfis=${clampedP}, teto=${rawMaxC || 'livre'}, auto-trava=${idleMin}min`);
+      saveState();
+      render();
+      renderAdmPanel();
+      showAdmToast('Capacidade e regras salvas.');
+    }
+
+    function admToggleProfileProtect(id) {
+      if (!admUnlocked) return;
+      const p = root.profiles.find(x => x.id === id);
+      if (!p) return;
+      p.protected = !p.protected;
+      logAdminAction(`Perfil "${p.name}" ${p.protected ? 'protegido' : 'desprotegido'}`);
+      saveState();
+      renderAdmPanel();
+      showAdmToast(`Perfil "${p.name}" ${p.protected ? 'protegido' : 'liberado'}.`);
+    }
+
+    function admExportFullBackup() {
+      const jsonStr = JSON.stringify(root, null, 2);
+      document.getElementById('adm-backup-json').value = jsonStr;
       try {
-        localStorage.setItem(STORE_KEY, JSON.stringify(state));
+        const blob = new Blob([jsonStr], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup-completo-adm-${todayKey()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
       } catch (_) {}
+      logAdminAction('Backup completo exportado em arquivo JSON');
+      saveState();
+      renderAdmPanel();
+      showAdmToast('Backup completo gerado e baixado.');
     }
 
-    function vibe(ms = 12) {
-      try { if (navigator.vibrate) navigator.vibrate(ms); } catch (_) {}
+    function admCopyFullBackup() {
+      const jsonStr = JSON.stringify(root, null, 2);
+      document.getElementById('adm-backup-json').value = jsonStr;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(jsonStr).catch(() => {});
+      }
+      showAdmToast('JSON completo copiado para a área de transferência.');
     }
 
-    function snapshot() {
-      prevSnapshot = { count: state.count, goalHit: state.goalHit };
-      document.getElementById('b-undo').disabled = false;
+    function admLoadBackupFile(e) {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        document.getElementById('adm-backup-json').value = String(r.result || '');
+        admPreviewBackupJson();
+      };
+      r.readAsText(f);
+    }
+
+    function parseAndValidateRootBackup(rawText) {
+      const parsed = JSON.parse(rawText);
+      if (!parsed || !Array.isArray(parsed.profiles) || !parsed.profiles.length) {
+        throw new Error('Estrutura de backup inválida (sem perfis).');
+      }
+      const totalRegs = parsed.profiles.reduce((a, p) => a + (Array.isArray(p.history) ? p.history.length : 0), 0);
+      return { parsed, totalRegs };
+    }
+
+    function admPreviewBackupJson() {
+      const txt = (document.getElementById('adm-backup-json').value || '').trim();
+      const prevEl = document.getElementById('adm-backup-preview');
+      if (!txt) {
+        prevEl.textContent = 'Cole ou carregue um JSON primeiro.';
+        return null;
+      }
+      try {
+        const { parsed, totalRegs } = parseAndValidateRootBackup(txt);
+        prevEl.textContent = `Válido: ${parsed.profiles.length} perfil(is) · ${totalRegs} registro(s) no histórico.`;
+        return parsed;
+      } catch (err) {
+        prevEl.textContent = 'JSON inválido: ' + err.message;
+        return null;
+      }
+    }
+
+    function admRestoreBackupJson() {
+      if (!admUnlocked) return;
+      const parsed = admPreviewBackupJson();
+      if (!parsed) {
+        showAdmToast('Corrija ou carregue um backup válido antes de restaurar.');
+        return;
+      }
+      const btn = document.getElementById('btn-adm-restore');
+      if (!armRestoreBackup) {
+        armRestoreBackup = true;
+        if (btn) btn.textContent = 'Confirmar Restauração?';
+        armRestoreTimer = setTimeout(() => {
+          armRestoreBackup = false;
+          if (btn) btn.textContent = 'Restaurar Sistema';
+        }, 3500);
+        return;
+      }
+      armRestoreBackup = false;
+      if (armRestoreTimer) { clearTimeout(armRestoreTimer); armRestoreTimer = null; }
+      if (btn) btn.textContent = 'Restaurar Sistema';
+
+      root.onboardingDone = true;
+      root.admin = { ...defaultAdminConfig(), ...(parsed.admin || {}) };
+      const maxP = getMaxProfiles();
+      root.profiles = parsed.profiles.slice(0, maxP).map((p, idx) => ({
+        ...defaultProfileData(p.name || `Perfil ${idx + 1}`, p.photo || '', p.frame || p.palette || 'blue'),
+        ...p,
+        id: p.id || ('p' + (idx + 1)),
+        cfg: { ...defaultProfileData().cfg, ...(p.cfg || {}) },
+        dailyGoals: Array.isArray(p.dailyGoals) ? p.dailyGoals : [],
+        history: Array.isArray(p.history) ? p.history : []
+      }));
+      root.activeProfileId = parsed.activeProfileId || root.profiles[0].id;
+      syncActiveProfileRef();
+      logAdminAction('Sistema restaurado a partir de backup JSON completo');
+      saveState();
+      render();
+      renderAdmPanel();
+      showAdmToast('Sistema restaurado com sucesso.');
+    }
+
+    function admSelectiveReset(moduleKey) {
+      if (!admUnlocked) return;
+      const labels = {
+        count: 'Zerar Contador',
+        history: 'Limpar Histórico',
+        goals: 'Limpar Metas',
+        log: 'Limpar Log ADM'
+      };
+      const btn = document.getElementById('btn-sel-reset-' + moduleKey);
+      if (armSelectiveKey !== moduleKey) {
+        resetAdmConfirmations();
+        armSelectiveKey = moduleKey;
+        if (btn) btn.textContent = 'Certeza?';
+        armSelectiveTimer = setTimeout(() => {
+          resetAdmConfirmations();
+        }, 3500);
+        return;
+      }
+      resetAdmConfirmations();
+
+      if (moduleKey === 'count') {
+        state.count = 0;
+        state.activeLabel = null;
+        prevSnapshot = null;
+        sessionStartMs = null;
+        sessionElapsedSec = 0;
+        paceLabel = 'Ritmo: --';
+        state.lastText = 'Contador zerado pelo ADM';
+        logAdminAction('Reset seletivo: contador atual zerado');
+      } else if (moduleKey === 'history') {
+        state.history = [];
+        state.lastText = 'Histórico limpo pelo ADM';
+        logAdminAction('Reset seletivo: histórico do perfil limpo');
+      } else if (moduleKey === 'goals') {
+        state.goal = null;
+        state.goalName = '';
+        state.activeDailyId = null;
+        state.goalCompleted = false;
+        state.dailyGoals = [];
+        state.lastText = 'Metas limpas pelo ADM';
+        logAdminAction('Reset seletivo: metas do perfil limpas');
+      } else if (moduleKey === 'log') {
+        root.admin.logs = [];
+      }
+
+      saveState();
+      render(true);
+      renderAdmPanel();
+      showAdmToast(`Módulo "${labels[moduleKey]}" limpo com sucesso.`);
+    }
+
+    function clearAdmLogOnly() {
+      if (!admUnlocked) return;
+      const btn = document.getElementById('btn-clear-adm-log');
+      if (!armClearAdmLog) {
+        armClearAdmLog = true;
+        if (btn) btn.textContent = 'Certeza?';
+        armClearAdmLogTimer = setTimeout(() => {
+          armClearAdmLog = false;
+          if (btn) btn.textContent = 'Limpar';
+        }, 3500);
+        return;
+      }
+      armClearAdmLog = false;
+      if (btn) btn.textContent = 'Limpar';
+      root.admin.logs = [];
+      saveState();
+      renderAdmPanel();
+      showAdmToast('Log de auditoria ADM limpo.');
+    }
+
+    function exportAdmLog() {
+      const logs = root.admin.logs || [];
+      if (!logs.length) {
+        showAdmToast('Log vazio.');
+        return;
+      }
+      const txt = logs.map(l => `[${l.at}] (${l.profile}) ${l.action}`).join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).catch(() => {});
+      }
+      showAdmToast('Log de auditoria copiado.');
+    }
+
+    function admTestMissionAlert() {
+      getAudioCtx();
+      playMissionSound();
+      vibe(45);
+      showAdmToast('Teste de som de missão e vibração disparado.');
+    }
+
+    function admSimulateNewDay() {
+      state.goalDay = '2000-01-01';
+      checkDailyRollover();
+      logAdminAction('Simulação de virada de dia executada');
+      saveState();
+      render();
+      renderAdmPanel();
+      showAdmToast('Virada de dia simulada.');
+    }
+
+    function admOpenProfilePickerNow() {
+      closeAdmPanel();
+      showPickerOnOpen = true;
+      syncScreens();
+    }
+
+    function resetConfirmations() {
+      armClearHist = false;
+      if (clearHistTimer) { clearTimeout(clearHistTimer); clearHistTimer = null; }
+      const bh = document.getElementById('btn-clear-hist');
+      if (bh) bh.textContent = 'Limpar tudo';
+
+      armClearGoals = false;
+      if (clearGoalsTimer) { clearTimeout(clearGoalsTimer); clearGoalsTimer = null; }
+      const bg = document.getElementById('btn-clear-goals');
+      if (bg) bg.textContent = 'Limpar metas';
+
+      armedHistDelIdx = null;
+      if (histDelTimer) { clearTimeout(histDelTimer); histDelTimer = null; }
+
+      armedGoalDelIdx = null;
+      if (goalDelTimer) { clearTimeout(goalDelTimer); goalDelTimer = null; }
+
+      armDelProfile = false;
+      if (delProfileTimer) { clearTimeout(delProfileTimer); delProfileTimer = null; }
+      const bd = document.getElementById('btn-del-prof');
+      if (bd) bd.textContent = 'Excluir perfil';
     }
 
     function disarmReset() {
       resetArmed = false;
-      if (resetTimer) { clearTimeout(resetTimer); resetTimer = null; }
-      const b = document.getElementById('b-reset');
-      if (b) b.textContent = 'Zerar';
+      if (armResetTimer) { clearTimeout(armResetTimer); armResetTimer = null; }
+      const btn = document.getElementById('b-reset');
+      if (btn) btn.textContent = state.activeLabel ? 'Cancelar' : 'Zerar';
+    }
+
+    function syncActiveProfileRef() {
+      const found = root.profiles.find(p => p.id === root.activeProfileId) || root.profiles[0];
+      root.activeProfileId = found.id;
+      state = found;
+    }
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORE_KEY) || sessionStorage.getItem(STORE_KEY) || localStorage.getItem('contador_perfis_v15') || localStorage.getItem('contador_perfis_v14');
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.profiles) && parsed.profiles.length) {
+            root.onboardingDone = Boolean(parsed.onboardingDone || (typeof parsed.onboardingStep === 'number' && parsed.onboardingStep >= 3));
+            root.admin = { ...defaultAdminConfig(), ...(parsed.admin || {}) };
+            const maxP = getMaxProfiles();
+            root.profiles = parsed.profiles.slice(0, maxP).map((p, idx) => ({
+              ...defaultProfileData(p.name || `Perfil ${idx + 1}`, p.photo || '', p.frame || p.palette || 'blue'),
+              ...p,
+              protected: Boolean(p.protected),
+              frame: p.frame || p.palette || 'blue',
+              id: p.id || ('p' + (idx + 1)),
+              cfg: { ...defaultProfileData().cfg, ...(p.cfg || {}) },
+              dailyGoals: Array.isArray(p.dailyGoals) ? p.dailyGoals : [],
+              history: Array.isArray(p.history) ? p.history : []
+            }));
+            root.activeProfileId = parsed.activeProfileId || root.profiles[0].id;
+          }
+        }
+      } catch (_) {}
+      syncActiveProfileRef();
+      checkDailyRollover();
+      if (state.goalMode === 'daily') {
+        const current = state.dailyGoals.find(g => g.id === state.activeDailyId && g.enabled);
+        if (!current) pickFirstEnabledDailyGoal();
+      }
+    }
+
+    function saveState() {
+      const s = JSON.stringify(root);
+      try { localStorage.setItem(STORE_KEY, s); } catch (_) {}
+      try { sessionStorage.setItem(STORE_KEY, s); } catch (_) {}
+    }
+
+    function resizePhotoToDataUrl(file, cb) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const max = 128;
+          const ratio = Math.min(max / img.width, max / img.height, 1);
+          canvas.width = Math.max(1, Math.round(img.width * ratio));
+          canvas.height = Math.max(1, Math.round(img.height * ratio));
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          cb(canvas.toDataURL('image/jpeg', 0.75));
+        };
+        img.src = reader.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function renderAvatar(el, prof) {
+      if (!el || !prof) return;
+      const fClass = `frame-${prof.frame || 'blue'}`;
+      el.classList.remove('frame-blue', 'frame-emerald', 'frame-violet', 'frame-amber', 'frame-rose');
+      el.classList.add(fClass);
+      if (prof.photo) {
+        el.innerHTML = `<img src="${prof.photo}" alt="${prof.name || 'Perfil'}" />`;
+      } else {
+        const ch = (prof.name || 'P').trim().charAt(0).toUpperCase() || 'P';
+        el.innerHTML = `<span class="avatar-face">${ch}</span>`;
+      }
+    }
+
+    function syncScreens() {
+      const s1 = document.getElementById('screen-init-profile');
+      const sp = document.getElementById('screen-profile-picker');
+
+      const step1Open = !root.onboardingDone;
+      const pickerOpen = root.onboardingDone && showPickerOnOpen;
+
+      if (s1) s1.classList.toggle('show', step1Open);
+      if (sp) sp.classList.toggle('show', pickerOpen);
+
+      if (step1Open) {
+        renderAvatar(document.getElementById('init-prof-preview'), {
+          name: initDraftName || '🌿',
+          photo: initDraftPhoto,
+          frame: initDraftFrame
+        });
+        document.querySelectorAll('#init-frame-row .pal-dot').forEach(dot => {
+          dot.classList.toggle('active', dot.getAttribute('data-f') === initDraftFrame);
+        });
+      }
+
+      if (pickerOpen) {
+        const pg = document.getElementById('picker-grid');
+        if (pg) {
+          pg.innerHTML = root.profiles.map(p => {
+            const fClass = `frame-${p.frame || 'blue'}`;
+            const picHtml = p.photo
+              ? `<img src="${p.photo}" alt="${p.name}" />`
+              : `<span class="avatar-face">${(p.name || 'P').trim().charAt(0).toUpperCase()}</span>`;
+            return `
+              <button class="pick-card" type="button" onclick="pickProfileAndEnter('${p.id}')">
+                <div class="prof-pic ${fClass}" style="width:52px;height:52px;">${picHtml}</div>
+                <span class="prof-name">${p.name}</span>
+              </button>`;
+          }).join('');
+        }
+      }
+    }
+
+    function onInitFormChange() {
+      initDraftName = document.getElementById('inp-init-name').value || '';
+      renderAvatar(document.getElementById('init-prof-preview'), {
+        name: initDraftName || '🌿',
+        photo: initDraftPhoto,
+        frame: initDraftFrame
+      });
+    }
+
+    function onPickInitPhoto(e) {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      resizePhotoToDataUrl(f, (dataUrl) => {
+        initDraftPhoto = dataUrl;
+        syncScreens();
+      });
+    }
+
+    function clearInitPhoto() {
+      initDraftPhoto = '';
+      syncScreens();
+    }
+
+    function selectInitFrame(f) {
+      initDraftFrame = f || 'blue';
+      syncScreens();
+    }
+
+    function finishOnboarding() {
+      const cleanName = (document.getElementById('inp-init-name').value || '').trim() || 'Principal';
+      state.name = cleanName;
+      state.photo = initDraftPhoto;
+      state.frame = initDraftFrame;
+      state.palette = initDraftFrame;
+      state.lastText = `Bem-vindo, ${state.name}`;
+      root.onboardingDone = true;
+      showPickerOnOpen = false;
+      saveState();
+      syncScreens();
+      render();
+    }
+
+    function pickProfileAndEnter(id) {
+      root.activeProfileId = id;
+      syncActiveProfileRef();
+      showPickerOnOpen = false;
+      sessionStartMs = null;
+      sessionElapsedSec = 0;
+      tapIntervals = [];
+      lastTapMs = null;
+      paceLabel = 'Ritmo: --';
+      prevSnapshot = null;
+      state.lastText = `Perfil ${state.name} ativo`;
+      saveState();
+      syncScreens();
+      render(true);
+    }
+
+    function openFullProfilesFromPicker() {
+      showPickerOnOpen = false;
+      syncScreens();
+      openProfiles();
+    }
+
+    function fmtTime(sec) {
+      const s = Math.max(0, Math.floor(sec));
+      const m = Math.floor(s / 60);
+      const r = s % 60;
+      return `${String(m).padStart(2, '0')}:${String(r).padStart(2, '0')}`;
+    }
+
+    function updateSessionAndPace(isIncrement) {
+      const now = Date.now();
+      lastActivityMs = now;
+      if (!sessionStartMs && isIncrement) {
+        sessionStartMs = now;
+      }
+      if (sessionStartMs) {
+        sessionElapsedSec = Math.floor((now - sessionStartMs) / 1000);
+      }
+      if (isIncrement) {
+        if (lastTapMs) {
+          const dt = (now - lastTapMs) / 1000;
+          if (dt > 0.04 && dt < 20) {
+            tapIntervals.push(dt);
+            if (tapIntervals.length > 6) tapIntervals.shift();
+            const avg = tapIntervals.reduce((a, b) => a + b, 0) / tapIntervals.length;
+            if (avg < 0.55) paceLabel = 'Ritmo: rápido';
+            else if (avg > 1.8) paceLabel = 'Ritmo: lento';
+            else paceLabel = 'Ritmo: normal';
+          }
+        }
+        lastTapMs = now;
+      }
+    }
+
+    setInterval(() => {
+      if (sessionStartMs && !state.locked) {
+        sessionElapsedSec = Math.floor((Date.now() - sessionStartMs) / 1000);
+        const tp = document.getElementById('timer-pill');
+        if (tp) tp.textContent = fmtTime(sessionElapsedSec);
+      }
+      const idleMin = Number(root.admin && root.admin.idleLockMinutes) || 0;
+      if (idleMin > 0 && !state.locked && root.onboardingDone && !showPickerOnOpen) {
+        if (Date.now() - lastActivityMs >= idleMin * 60 * 1000) {
+          state.locked = true;
+          state.lastText = `Tela travada por inatividade (${idleMin} min)`;
+          saveState();
+          render();
+        }
+      }
+    }, 1000);
+
+    function openProfiles() {
+      disarmReset();
+      formProfileId = state.id;
+      draftProfName = state.name;
+      draftProfPhoto = state.photo || '';
+      draftProfFrame = state.frame || 'blue';
+      renderProfilesModal();
+      openModal('m-profiles');
+    }
+
+    function onDraftProfileChange() {
+      draftProfName = document.getElementById('inp-prof-name').value || '';
+      renderAvatar(document.getElementById('prof-draft-preview'), {
+        name: draftProfName || 'N',
+        photo: draftProfPhoto,
+        frame: draftProfFrame
+      });
+    }
+
+    function selectDraftFrame(f) {
+      draftProfFrame = f || 'blue';
+      renderProfilesModal();
+    }
+
+    function renderProfilesModal() {
+      const maxP = getMaxProfiles();
+      document.getElementById('prof-sub').textContent = `${root.profiles.length} de ${maxP} perfis`;
+      const grid = document.getElementById('prof-grid');
+      grid.innerHTML = root.profiles.map(p => {
+        const isAct = p.id === state.id;
+        const fClass = `frame-${p.frame || 'blue'}`;
+        const picHtml = p.photo
+          ? `<img src="${p.photo}" alt="${p.name}" />`
+          : `<span class="avatar-face">${(p.name || 'P').trim().charAt(0).toUpperCase()}</span>`;
+        return `
+          <div class="prof-tile ${isAct ? 'active' : ''}" onclick="switchProfile('${p.id}')">
+            <div class="prof-pic ${fClass}">${picHtml}</div>
+            <div class="prof-name">${p.protected ? '🔒 ' : ''}${p.name}</div>
+            <button class="s-btn" type="button" onclick="event.stopPropagation(); selectProfileForEdit('${p.id}')">Editar</button>
+          </div>`;
+      }).join('');
+
+      const targetProf = formProfileId ? root.profiles.find(x => x.id === formProfileId) : null;
+      const isProtected = Boolean(targetProf && targetProf.protected);
+
+      document.getElementById('prof-form-title').textContent = formProfileId
+        ? (isProtected ? 'Perfil protegido pelo ADM' : 'Editar perfil selecionado')
+        : 'Novo perfil';
+      document.getElementById('inp-prof-name').value = draftProfName;
+      document.getElementById('inp-prof-name').disabled = isProtected;
+      document.getElementById('btn-save-prof').disabled = isProtected;
+
+      renderAvatar(document.getElementById('prof-draft-preview'), {
+        name: draftProfName || 'N',
+        photo: draftProfPhoto,
+        frame: draftProfFrame
+      });
+      document.querySelectorAll('#prof-frame-row .pal-dot').forEach(dot => {
+        dot.classList.toggle('active', dot.getAttribute('data-f') === draftProfFrame);
+      });
+      document.getElementById('btn-dup-prof').disabled = root.profiles.length >= maxP;
+      document.getElementById('btn-del-prof').style.display =
+        (formProfileId && root.profiles.length > 1 && !isProtected) ? 'inline-block' : 'none';
+    }
+
+    function switchProfile(id) {
+      if (id === state.id) return;
+      root.activeProfileId = id;
+      syncActiveProfileRef();
+      sessionStartMs = null;
+      sessionElapsedSec = 0;
+      tapIntervals = [];
+      lastTapMs = null;
+      paceLabel = 'Ritmo: --';
+      prevSnapshot = null;
+      disarmReset();
+      saveState();
+      renderProfilesModal();
+      render(true);
+    }
+
+    function selectProfileForEdit(id) {
+      const p = root.profiles.find(x => x.id === id);
+      if (!p) return;
+      formProfileId = p.id;
+      draftProfName = p.name;
+      draftProfPhoto = p.photo || '';
+      draftProfFrame = p.frame || 'blue';
+      renderProfilesModal();
+    }
+
+    function prepareNewProfile() {
+      const maxP = getMaxProfiles();
+      if (root.profiles.length >= maxP) {
+        state.lastText = `Limite de ${maxP} perfis atingido`;
+        render();
+        return;
+      }
+      formProfileId = null;
+      draftProfName = `Perfil ${root.profiles.length + 1}`;
+      draftProfPhoto = '';
+      draftProfFrame = 'emerald';
+      renderProfilesModal();
+    }
+
+    function duplicateSelectedProfile() {
+      const maxP = getMaxProfiles();
+      if (root.profiles.length >= maxP) {
+        state.lastText = `Limite de ${maxP} perfis atingido`;
+        render();
+        return;
+      }
+      const source = root.profiles.find(p => p.id === (formProfileId || state.id)) || state;
+      const clonedData = JSON.parse(JSON.stringify(source));
+      delete clonedData.id;
+      clonedData.protected = false;
+      clonedData.name = `${source.name || 'Perfil'} (Cópia)`.slice(0, 20);
+      const copyProf = { id: 'p_' + Date.now(), ...clonedData };
+      root.profiles.push(copyProf);
+      root.activeProfileId = copyProf.id;
+      syncActiveProfileRef();
+      formProfileId = copyProf.id;
+      draftProfName = copyProf.name;
+      draftProfPhoto = copyProf.photo || '';
+      draftProfFrame = copyProf.frame || 'blue';
+      state.lastText = `Perfil "${copyProf.name}" duplicado`;
+      saveState();
+      renderProfilesModal();
+      render();
+    }
+
+    function onPickProfilePhoto(e) {
+      const f = e.target.files && e.target.files[0];
+      if (!f) return;
+      resizePhotoToDataUrl(f, (dataUrl) => {
+        draftProfPhoto = dataUrl;
+        renderProfilesModal();
+      });
+    }
+
+    function clearProfilePhoto() {
+      draftProfPhoto = '';
+      renderProfilesModal();
+    }
+
+    function saveProfileForm() {
+      const maxP = getMaxProfiles();
+      const nameInput = (document.getElementById('inp-prof-name').value || '').trim();
+      const finalName = nameInput || 'Perfil';
+
+      if (formProfileId) {
+        const p = root.profiles.find(x => x.id === formProfileId);
+        if (p) {
+          if (p.protected) {
+            state.lastText = 'Perfil protegido pelo ADM';
+            render();
+            return;
+          }
+          p.name = finalName;
+          p.photo = draftProfPhoto;
+          p.frame = draftProfFrame;
+          state.lastText = `Perfil "${finalName}" salvo`;
+        }
+      } else {
+        if (root.profiles.length >= maxP) {
+          state.lastText = `Máximo de ${maxP} perfis`;
+          render();
+          return;
+        }
+        const newP = { id: 'p_' + Date.now(), ...defaultProfileData(finalName, draftProfPhoto, draftProfFrame) };
+        root.profiles.push(newP);
+        root.activeProfileId = newP.id;
+        formProfileId = newP.id;
+        syncActiveProfileRef();
+        state.lastText = `Perfil "${finalName}" criado`;
+      }
+      root.onboardingDone = true;
+      saveState();
+      renderProfilesModal();
+      render();
+    }
+
+    function deleteCurrentProfile() {
+      if (!formProfileId || root.profiles.length <= 1) return;
+      const target = root.profiles.find(p => p.id === formProfileId);
+      if (target && target.protected) {
+        state.lastText = 'Perfil protegido pelo ADM';
+        render();
+        return;
+      }
+      const btn = document.getElementById('btn-del-prof');
+      if (!armDelProfile) {
+        resetConfirmations();
+        armDelProfile = true;
+        if (btn) btn.textContent = 'Certeza?';
+        delProfileTimer = setTimeout(() => {
+          armDelProfile = false;
+          if (btn) btn.textContent = 'Excluir perfil';
+        }, 3500);
+        return;
+      }
+      resetConfirmations();
+      const idx = root.profiles.findIndex(p => p.id === formProfileId);
+      if (idx === -1) return;
+      root.profiles.splice(idx, 1);
+      if (root.activeProfileId === formProfileId) {
+        root.activeProfileId = root.profiles[0].id;
+      }
+      syncActiveProfileRef();
+      formProfileId = state.id;
+      draftProfName = state.name;
+      draftProfPhoto = state.photo || '';
+      draftProfFrame = state.frame || 'blue';
+      saveState();
+      renderProfilesModal();
+      render();
+    }
+
+    function toggleLock() {
+      disarmReset();
+      lastActivityMs = Date.now();
+      state.locked = !state.locked;
+      state.lastText = state.locked ? 'Tela travada pelo cadeado' : 'Tela destravada';
+      vibe(12);
+      saveState();
+      render();
+    }
+
+    function getAudioCtx() {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      if (!AC) return null;
+      if (!audioCtx) audioCtx = new AC();
+      if (audioCtx.state === 'suspended') audioCtx.resume().catch(() => {});
+      return audioCtx;
+    }
+
+    function playMissionSound() {
+      if (!state.cfg.sound) return;
+      try {
+        const ctx = getAudioCtx();
+        if (!ctx) return;
+        const now = ctx.currentTime;
+        const seq = [
+          { f: 523.25, t: 0.00, d: 0.22 },
+          { f: 659.25, t: 0.22, d: 0.22 },
+          { f: 783.99, t: 0.44, d: 0.22 },
+          { f: 1046.50, t: 0.68, d: 0.52 },
+          { f: 783.99, t: 1.25, d: 0.24 },
+          { f: 987.77, t: 1.50, d: 0.24 },
+          { f: 1046.50, t: 1.76, d: 0.65 },
+          { f: 1318.51, t: 2.45, d: 0.35 },
+          { f: 1567.98, t: 2.82, d: 0.45 },
+          { f: 1046.50, t: 3.30, d: 1.65 }
+        ];
+        seq.forEach(n => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(n.f, now + n.t);
+          gain.gain.setValueAtTime(0.001, now + n.t);
+          gain.gain.linearRampToValueAtTime(0.11, now + n.t + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + n.t + n.d);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + n.t);
+          osc.stop(now + n.t + n.d + 0.04);
+        });
+      } catch (_) {}
+    }
+
+    function vibe(ms = 12) {
+      if (!state.cfg.vibrate) return;
+      try { if (navigator.vibrate) navigator.vibrate(ms); } catch (_) {}
+    }
+
+    async function syncWakeLock() {
+      try {
+        if (state.cfg.wakeLock && 'wakeLock' in navigator && document.visibilityState === 'visible') {
+          if (!wakeSentinel) wakeSentinel = await navigator.wakeLock.request('screen');
+        } else if (wakeSentinel) {
+          await wakeSentinel.release();
+          wakeSentinel = null;
+        }
+      } catch (_) {}
+    }
+
+    function pickFirstEnabledDailyGoal() {
+      const found = state.dailyGoals.find(g => g && g.enabled);
+      if (found) {
+        state.activeDailyId = found.id;
+        state.goal = found.target;
+        state.goalName = found.name;
+        state.goalMode = 'daily';
+        state.goalCompleted = Boolean(found.completed) || state.count >= found.target;
+      } else {
+        state.activeDailyId = null;
+        if (state.goalMode === 'daily') {
+          state.goal = null;
+          state.goalName = '';
+          state.goalCompleted = false;
+        }
+      }
+    }
+
+    function checkDailyRollover() {
+      const today = todayKey();
+      if (state.goalDay !== today) {
+        state.goalDay = today;
+        state.goalCompleted = false;
+        state.dailyGoals = state.dailyGoals.map(g => ({ ...g, completed: false }));
+        if (state.goalMode === 'daily' && state.goal > 0) {
+          state.count = 0;
+          state.lastText = 'Novo dia: metas diárias renovadas';
+        }
+      }
+    }
+
+    function snapshot() {
+      prevSnapshot = { count: state.count, activeLabel: state.activeLabel, goalCompleted: state.goalCompleted };
+      const b = document.getElementById('b-undo');
+      if (b) b.disabled = false;
+    }
+
+    function undoLast() {
+      disarmReset();
+      if (!prevSnapshot) return;
+      state.count = prevSnapshot.count;
+      state.activeLabel = prevSnapshot.activeLabel;
+      state.goalCompleted = Boolean(prevSnapshot.goalCompleted);
+      prevSnapshot = null;
+      state.lastText = 'Última alteração desfeita';
+      saveState();
+      render(true);
     }
 
     function render(bump = false) {
-      document.body.classList.toggle('dark', Boolean(state.dark));
-      const metaTheme = document.querySelector('meta[name="theme-color"]');
-      if (metaTheme) metaTheme.content = state.dark ? '#090F1E' : '#EEF2FF';
+      checkDailyRollover();
+      document.body.classList.toggle('dark', state.dark);
+      document.body.classList.toggle('locked', state.locked);
+      document.body.classList.toggle('minimal', state.cfg.minimal);
+      document.body.classList.toggle('one-hand', Boolean(state.cfg.oneHand));
+      document.body.classList.toggle('supervision', isSupervisionOn());
+      document.body.setAttribute('data-pal', state.palette || 'blue');
+
+      renderAvatar(document.getElementById('prof-btn'), state);
+
+      const lockBtn = document.getElementById('lock-btn');
+      lockBtn.textContent = state.locked ? '🔒' : '🔓';
+      lockBtn.classList.toggle('locked', state.locked);
+
+      const m = document.querySelector('meta[name="theme-color"]');
+      if (m) m.content = state.dark ? '#090F1E' : '#EEF2FF';
+
+      document.getElementById('pace-pill').textContent = paceLabel;
+      document.getElementById('timer-pill').textContent = fmtTime(sessionElapsedSec);
 
       const numEl = document.getElementById('num');
       numEl.textContent = state.count.toLocaleString('pt-BR');
       if (bump) {
-        numEl.classList.remove('bump');
-        void numEl.offsetWidth;
-        numEl.classList.add('bump');
+        numEl.classList.remove('bump'); void numEl.offsetWidth; numEl.classList.add('bump');
         setTimeout(() => numEl.classList.remove('bump'), 130);
       }
 
       document.getElementById('hint').textContent = `Toque na área para +${state.step.toLocaleString('pt-BR')}`;
       document.getElementById('feedback').textContent = state.lastText;
 
-      [1, 5, 10].forEach(n => {
-        document.getElementById('step-' + n).classList.toggle('active', n === state.step);
-      });
-      const stepCustom = document.getElementById('step-custom');
+      [1, 5, 10].forEach(n => document.getElementById('step-' + n).classList.toggle('active', n === state.step));
+      const customStepBtn = document.getElementById('step-custom');
       const isCustom = ![1, 5, 10].includes(state.step);
-      stepCustom.classList.toggle('active', isCustom);
-      stepCustom.textContent = isCustom ? String(state.step) : '...';
+      customStepBtn.classList.toggle('active', isCustom);
+      customStepBtn.textContent = isCustom ? String(state.step) : '...';
 
+      const chip = document.getElementById('item-chip');
+      if (state.activeLabel) {
+        chip.textContent = `Continuando: ${state.activeLabel}`;
+        chip.classList.add('show');
+      } else {
+        chip.classList.remove('show');
+      }
+
+      const stageEl = document.getElementById('stage');
       const gBox = document.getElementById('goal-box');
-      if (state.goal > 0) {
+      const activeAllowed = state.goal > 0 && (state.goalMode !== 'daily' || !state.activeDailyId || state.dailyGoals.some(g => g.id === state.activeDailyId && g.enabled));
+      if (activeAllowed) {
         const pct = Math.min(100, Math.round((state.count / state.goal) * 100));
-        const done = state.count >= state.goal;
+        const hit = state.count >= state.goal;
         gBox.classList.add('show');
-        document.getElementById('goal-label').textContent = `Meta: ${state.count.toLocaleString('pt-BR')} / ${state.goal.toLocaleString('pt-BR')}`;
+        stageEl.classList.toggle('goal-hit', hit);
+        const prefix = state.goalName ? `${state.goalName}: ` : 'Meta: ';
+        document.getElementById('goal-label').textContent = `${prefix}${state.count.toLocaleString('pt-BR')} / ${state.goal.toLocaleString('pt-BR')}`;
+        document.getElementById('goal-mode-tag').textContent = state.goalMode === 'daily' ? 'DIÁRIA' : '1X';
         document.getElementById('goal-pct').textContent = pct + '%';
         const fill = document.getElementById('goal-fill');
         fill.style.width = pct + '%';
-        fill.classList.toggle('done', done);
+        fill.classList.toggle('done', hit);
       } else {
         gBox.classList.remove('show');
+        stageEl.classList.remove('goal-hit');
       }
 
       document.getElementById('b-m1').disabled = state.count <= 0;
       document.getElementById('b-m10').disabled = state.count <= 0;
       document.getElementById('b-undo').disabled = !prevSnapshot;
-      document.getElementById('b-reset').disabled = state.count <= 0;
+      document.getElementById('b-reset').disabled = (state.count === 0 && !state.activeLabel) || isSupervisionOn();
+      if (!resetArmed) {
+        document.getElementById('b-reset').textContent = state.activeLabel ? 'Cancelar' : 'Zerar';
+      }
       document.getElementById('b-finish').disabled = state.count <= 0;
       document.getElementById('hist-badge').textContent = state.history.length;
+
+      document.getElementById('sw-onehand').classList.toggle('on', Boolean(state.cfg.oneHand));
+      document.getElementById('sw-hw').classList.toggle('on', Boolean(state.cfg.hwKeys));
+      document.getElementById('sw-minimal').classList.toggle('on', Boolean(state.cfg.minimal));
+      document.getElementById('sw-sound').classList.toggle('on', Boolean(state.cfg.sound));
+      document.getElementById('sw-wake').classList.toggle('on', Boolean(state.cfg.wakeLock));
+      document.getElementById('sw-vib').classList.toggle('on', Boolean(state.cfg.vibrate));
+      document.querySelectorAll('.pal-dot[data-p]').forEach(dot => {
+        dot.classList.toggle('active', dot.getAttribute('data-p') === (state.palette || 'blue'));
+      });
     }
 
-    function checkGoal(prev) {
-      if (state.goal > 0 && prev < state.goal && state.count >= state.goal && !state.goalHit) {
-        state.goalHit = true;
-        vibe(40);
-        state.lastText = `Meta de ${state.goal.toLocaleString('pt-BR')} atingida!`;
+    function handleGoalHit(prevCount) {
+      if (!state.goal || state.goal <= 0) return;
+      if (state.goalMode === 'daily' && state.activeDailyId) {
+        const dg = state.dailyGoals.find(g => g.id === state.activeDailyId);
+        if (!dg || !dg.enabled) return;
+      }
+      if (prevCount < state.goal && state.count >= state.goal && !state.goalCompleted) {
+        state.goalCompleted = true;
+        if (state.goalMode === 'daily' && state.activeDailyId) {
+          const dg = state.dailyGoals.find(g => g.id === state.activeDailyId);
+          if (dg) dg.completed = true;
+        }
+        vibe(45);
+        playMissionSound();
+        const titleTxt = state.goalName ? `"${state.goalName}"` : `Meta de ${state.goal.toLocaleString('pt-BR')}`;
+        if (state.goalMode === 'once') {
+          state.lastText = `${titleTxt} atingida (uso único concluído)`;
+          state.goal = null;
+          state.goalName = '';
+          state.goalCompleted = false;
+        } else {
+          state.lastText = `Meta diária ${titleTxt} atingida!`;
+        }
       }
     }
 
+    function applyMaxCountCap(rawNext) {
+      const cap = Number(root.admin && root.admin.maxCount) || 0;
+      if (cap > 0 && rawNext > cap) return { val: cap, capped: true };
+      return { val: rawNext, capped: false };
+    }
+
     function add(delta, tag = '') {
+      if (!root.onboardingDone || showPickerOnOpen || state.locked) return;
       disarmReset();
+      checkDailyRollover();
+      getAudioCtx();
       const prev = state.count;
-      const next = Math.max(0, prev + delta);
+      const { val: next, capped } = applyMaxCountCap(Math.max(0, prev + delta));
       if (next !== prev) snapshot();
       state.count = next;
       const diff = state.count - prev;
       if (diff > 0) {
-        state.lastText = (tag ? tag + ' ' : '') + `+${diff.toLocaleString('pt-BR')} · Total ${state.count.toLocaleString('pt-BR')}`;
-        checkGoal(prev);
+        updateSessionAndPace(true);
+        state.lastText = (tag ? tag + ' ' : '') + `+${diff.toLocaleString('pt-BR')} · Total ${state.count.toLocaleString('pt-BR')}${capped ? ' (teto ADM)' : ''}`;
+        handleGoalHit(prev);
       } else if (diff < 0) {
+        updateSessionAndPace(false);
         state.lastText = (tag ? tag + ' ' : '') + `${diff.toLocaleString('pt-BR')} · Total ${state.count.toLocaleString('pt-BR')}`;
-      } else {
+      } else if (delta > 0 && capped) {
+        state.lastText = `Teto máximo ADM atingido (${state.count.toLocaleString('pt-BR')})`;
+      } else if (delta < 0) {
         state.lastText = 'Já está em 0';
       }
       saveState();
@@ -451,7 +2402,9 @@
     }
 
     function onStageClick(e) {
+      if (!root.onboardingDone || showPickerOnOpen || state.locked) return;
       disarmReset();
+      getAudioCtx();
       const rect = e.currentTarget.getBoundingClientRect();
       const r = document.createElement('span');
       r.className = 'ripple';
@@ -460,15 +2413,74 @@
       e.currentTarget.appendChild(r);
       setTimeout(() => r.remove(), 460);
       vibe(12);
-      add(state.step);
+      const prev = state.count;
+      const { val: next, capped } = applyMaxCountCap(prev + state.step);
+      if (next !== prev) snapshot();
+      state.count = next;
+      const diff = state.count - prev;
+      if (diff > 0) {
+        updateSessionAndPace(true);
+        state.lastText = `+${diff.toLocaleString('pt-BR')} · Total ${state.count.toLocaleString('pt-BR')}${capped ? ' (teto ADM)' : ''}`;
+        handleGoalHit(prev);
+      } else if (capped) {
+        state.lastText = `Teto máximo ADM atingido (${state.count.toLocaleString('pt-BR')})`;
+      }
+      saveState();
+      render(true);
     }
+
+    let lastHwTriggerMs = 0;
+    function handleHardwareTrigger(direction) {
+      if (!root.onboardingDone || showPickerOnOpen || !state.cfg.hwKeys || state.locked) return;
+      if (document.querySelector('.modal.open')) return;
+      const activeTag = (document.activeElement && document.activeElement.tagName) || '';
+      if (/INPUT|TEXTAREA|SELECT/.test(activeTag)) return;
+      const now = Date.now();
+      if (now - lastHwTriggerMs < 90) return;
+      lastHwTriggerMs = now;
+      vibe(12);
+      if (direction === 'up') add(state.step, 'Botão físico');
+      else if (direction === 'down') add(-state.step, 'Botão físico');
+    }
+
+    function inspectKeyEvent(e, isKeyUp = false) {
+      if (!root.onboardingDone || showPickerOnOpen || !state.cfg.hwKeys || state.locked) return;
+      if (document.querySelector('.modal.open')) return;
+      const activeTag = (document.activeElement && document.activeElement.tagName) || '';
+      if (/INPUT|TEXTAREA|SELECT/.test(activeTag)) return;
+      const k = String(e.key || '');
+      const code = String(e.code || '');
+      const kc = Number(e.keyCode || e.which || 0);
+
+      const isUp =
+        k === 'AudioVolumeUp' || k === 'VolumeUp' || code === 'VolumeUp' ||
+        k === 'ArrowUp' || k === ' ' || code === 'Space' ||
+        k === 'MediaTrackNext' || code === 'MediaTrackNext' || kc === 24 || kc === 38 || kc === 32;
+
+      const isDown =
+        k === 'AudioVolumeDown' || k === 'VolumeDown' || code === 'VolumeDown' ||
+        k === 'ArrowDown' || k === 'MediaTrackPrevious' || code === 'MediaTrackPrevious' || kc === 25 || kc === 40;
+
+      if (isUp) {
+        e.preventDefault();
+        if (!isKeyUp) handleHardwareTrigger('up');
+      } else if (isDown) {
+        e.preventDefault();
+        if (!isKeyUp) handleHardwareTrigger('down');
+      }
+    }
+
+    window.addEventListener('keydown', (e) => inspectKeyEvent(e, false), { passive: false });
+    window.addEventListener('keyup', (e) => inspectKeyEvent(e, true), { passive: false });
+    document.addEventListener('volumeupbutton', () => handleHardwareTrigger('up'), false);
+    document.addEventListener('volumedownbutton', () => handleHardwareTrigger('down'), false);
 
     function setStep(n) {
       disarmReset();
-      const v = Math.floor(Number(n));
-      if (!Number.isFinite(v) || v <= 0) return;
-      state.step = v;
-      state.lastText = `Passo: +${v.toLocaleString('pt-BR')}`;
+      const val = Math.floor(Number(n));
+      if (!Number.isFinite(val) || val <= 0) return;
+      state.step = val;
+      state.lastText = `Passo alterado para ${val.toLocaleString('pt-BR')}`;
       saveState();
       render();
     }
@@ -485,155 +2497,868 @@
       if (!isNaN(v) && v > 0) setStep(v);
     }
 
-    function openCustom() {
+    function toggleTheme() {
       disarmReset();
-      document.getElementById('inp-custom').value = '';
-      openModal('m-custom');
-    }
-    function quickVal(v) { closeModal('m-custom'); add(v, 'Valor'); }
-    function confirmCustom() {
-      const v = parseInt(document.getElementById('inp-custom').value, 10);
-      closeModal('m-custom');
-      if (!isNaN(v) && v > 0) add(v, 'Valor');
+      state.dark = !state.dark;
+      state.lastText = state.dark ? 'Tema escuro ativo' : 'Tema claro ativo';
+      saveState();
+      render();
     }
 
-    function openGoal() {
-      disarmReset();
-      document.getElementById('inp-goal').value = state.goal || '';
-      openModal('m-goal');
-    }
-    function saveGoal() {
-      const v = parseInt(document.getElementById('inp-goal').value, 10);
-      closeModal('m-goal');
-      if (!isNaN(v) && v > 0) {
-        state.goal = v;
-        state.goalHit = state.count >= v;
-        state.lastText = `Meta definida: ${v.toLocaleString('pt-BR')}`;
-      } else {
-        state.goal = null;
-        state.goalHit = false;
-        state.lastText = 'Meta removida';
+    function setPalette(pal) {
+      if (isSupervisionOn()) {
+        state.lastText = 'Bloqueado pelo Modo Supervisão';
+        render();
+        return;
       }
+      state.palette = pal;
       saveState();
       render();
-    }
-    function clearGoal() {
-      state.goal = null;
-      state.goalHit = false;
-      state.lastText = 'Meta removida';
-      closeModal('m-goal');
-      saveState();
-      render();
-    }
-
-    function undoLast() {
-      disarmReset();
-      if (!prevSnapshot) return;
-      state.count = prevSnapshot.count;
-      state.goalHit = prevSnapshot.goalHit;
-      prevSnapshot = null;
-      state.lastText = 'Desfeito';
-      saveState();
-      render(true);
     }
 
     function resetCounter() {
-      if (state.count <= 0) return;
+      if (state.locked) return;
+      if (isSupervisionOn()) {
+        state.lastText = 'Bloqueado pelo Modo Supervisão';
+        render();
+        return;
+      }
+      if (state.activeLabel) {
+        disarmReset();
+        snapshot();
+        state.activeLabel = null;
+        state.count = 0;
+        sessionStartMs = null;
+        sessionElapsedSec = 0;
+        tapIntervals = [];
+        lastTapMs = null;
+        paceLabel = 'Ritmo: --';
+        state.lastText = 'Continuação cancelada';
+        saveState();
+        render(true);
+        return;
+      }
+      if (state.count <= 0) { disarmReset(); return; }
+
       const btn = document.getElementById('b-reset');
       if (!resetArmed) {
         resetArmed = true;
         if (btn) btn.textContent = 'Certeza?';
-        resetTimer = setTimeout(disarmReset, 3500);
+        armResetTimer = setTimeout(() => { disarmReset(); }, 3500);
         return;
       }
+
       disarmReset();
       snapshot();
       state.count = 0;
-      state.goalHit = false;
+      sessionStartMs = null;
+      sessionElapsedSec = 0;
+      tapIntervals = [];
+      lastTapMs = null;
+      paceLabel = 'Ritmo: --';
       state.lastText = 'Contador zerado';
       saveState();
       render(true);
     }
 
+    function openConfig() {
+      disarmReset();
+      resetSecretPanel();
+      render();
+      openModal('m-cfg');
+    }
+
+    function toggleCfg(key) {
+      if (isSupervisionOn()) {
+        state.lastText = 'Configurações bloqueadas pelo Modo Supervisão';
+        render();
+        return;
+      }
+      getAudioCtx();
+      state.cfg[key] = !state.cfg[key];
+      if (key === 'sound' && state.cfg.sound) playMissionSound();
+      if (key === 'vibrate' && state.cfg.vibrate) vibe(15);
+      if (key === 'oneHand') {
+        state.lastText = state.cfg.oneHand ? 'Modo mão única ativado' : 'Modo mão única desativado';
+      }
+      if (key === 'hwKeys') {
+        state.lastText = state.cfg.hwKeys
+          ? 'Botões físicos ativados (quando o aparelho repassar)'
+          : 'Botões físicos desativados';
+      }
+      saveState();
+      syncWakeLock();
+      render();
+    }
+
+    function openModal(id) {
+      resetConfirmations();
+      document.getElementById(id).classList.add('open');
+    }
+    function closeModal(id) {
+      resetConfirmations();
+      if (id === 'm-cfg') resetSecretPanel();
+      document.getElementById(id).classList.remove('open');
+    }
+
+    function syncValModeButtons() {
+      document.getElementById('val-mode-add').classList.toggle('active', draftValMode === 'add');
+      document.getElementById('val-mode-sub').classList.toggle('active', draftValMode === 'sub');
+      document.getElementById('btn-apply-val').textContent = draftValMode === 'sub' ? 'Tirar do Total' : 'Colocar no Total';
+    }
+    function selectValMode(m) {
+      draftValMode = m === 'sub' ? 'sub' : 'add';
+      syncValModeButtons();
+    }
+    function openCustom() {
+      if (state.locked) return;
+      disarmReset();
+      draftValMode = 'add';
+      syncValModeButtons();
+      document.getElementById('inp-custom').value = '';
+      openModal('m-custom');
+    }
+    function quickVal(v) {
+      closeModal('m-custom');
+      add(draftValMode === 'sub' ? -Math.abs(v) : Math.abs(v), 'Manual');
+    }
+    function confirmCustom() {
+      const v = Math.abs(parseInt(document.getElementById('inp-custom').value, 10));
+      closeModal('m-custom');
+      if (!isNaN(v) && v > 0) add(draftValMode === 'sub' ? -v : v, 'Manual');
+    }
+
+    function syncGoalModeButtons() {
+      document.getElementById('mode-once').classList.toggle('active', draftGoalMode === 'once');
+      document.getElementById('mode-daily').classList.toggle('active', draftGoalMode === 'daily');
+    }
+    function selectGoalMode(mode) {
+      draftGoalMode = mode === 'daily' ? 'daily' : 'once';
+      syncGoalModeButtons();
+    }
+    function cancelEditGoal() {
+      editingDailyIdx = null;
+      armedGoalDelIdx = null;
+      document.getElementById('goal-modal-title').textContent = '🎯 Meta de Contagem';
+      document.getElementById('btn-save-goal').textContent = 'Salvar';
+      document.getElementById('inp-goal-name').value = '';
+      document.getElementById('inp-goal').value = '';
+      renderDailyGoalsList();
+    }
+
+    function renderDailyGoalsList() {
+      document.getElementById('daily-goals-count').textContent = state.dailyGoals.length;
+      const box = document.getElementById('daily-goals-list');
+      if (!state.dailyGoals.length) {
+        box.innerHTML = '<p style="text-align:center;color:var(--muted);padding:12px 0;font-size:0.78rem;">Nenhuma meta diária salva ainda.</p>';
+        return;
+      }
+      box.innerHTML = state.dailyGoals.map((dg, idx) => {
+        const isFocus = state.goalMode === 'daily' && state.activeDailyId === dg.id && dg.enabled;
+        const isDone = Boolean(dg.completed) || (isFocus && state.count >= dg.target);
+        const delLabel = armedGoalDelIdx === idx ? 'Certeza?' : 'Excluir';
+        return `
+          <div class="dgoal-card ${isFocus ? 'focus' : ''} ${isDone ? 'done' : ''} ${!dg.enabled ? 'off' : ''}">
+            <div class="dgoal-top">
+              <div style="min-width:0;flex:1;">
+                <div class="dgoal-name">${dg.name}</div>
+                <div style="font-size:0.68rem;color:var(--muted);margin-top:2px;">
+                  ${isDone ? 'Concluída hoje' : (dg.enabled ? (isFocus ? 'Ativa na contagem' : 'Ligada') : 'Desligada')}
+                </div>
+              </div>
+              <div class="dgoal-target">${Number(dg.target).toLocaleString('pt-BR')}</div>
+            </div>
+            <div class="dgoal-foot">
+              <div style="display:flex;gap:4px;">
+                <button class="s-btn" type="button" onclick="moveDailyGoal(${idx}, -1)" ${idx === 0 ? 'disabled' : ''}>↑</button>
+                <button class="s-btn" type="button" onclick="moveDailyGoal(${idx}, 1)" ${idx === state.dailyGoals.length - 1 ? 'disabled' : ''}>↓</button>
+              </div>
+              <div class="h-btns">
+                <button class="s-btn" type="button" onclick="useDailyGoal(${idx})">Usar</button>
+                <button class="s-btn" type="button" onclick="editDailyGoal(${idx})">Editar</button>
+                <button class="s-btn" type="button" onclick="toggleDailyGoalDone(${idx})">${isDone ? 'Reabrir' : 'Concluir'}</button>
+                <button class="s-btn" type="button" onclick="toggleDailyGoalEnabled(${idx})">${dg.enabled ? 'Desligar' : 'Ligar'}</button>
+                <button class="s-btn b-danger" type="button" onclick="delDailyGoal(${idx})">${delLabel}</button>
+              </div>
+            </div>
+          </div>`;
+      }).join('');
+    }
+
+    function openGoal() {
+      disarmReset();
+      editingDailyIdx = null;
+      armedGoalDelIdx = null;
+      document.getElementById('goal-modal-title').textContent = '🎯 Meta de Contagem';
+      document.getElementById('btn-save-goal').textContent = 'Salvar';
+      document.getElementById('inp-goal-name').value = state.goalName || '';
+      document.getElementById('inp-goal').value = state.goal || '';
+      draftGoalMode = state.goalMode || 'once';
+      syncGoalModeButtons();
+      renderDailyGoalsList();
+      openModal('m-goal');
+    }
+
+    function clearAllDailyGoals() {
+      if (isSupervisionOn()) {
+        state.lastText = 'Bloqueado pelo Modo Supervisão';
+        render();
+        return;
+      }
+      if (!state.dailyGoals.length) return;
+      const btn = document.getElementById('btn-clear-goals');
+      if (!armClearGoals) {
+        resetConfirmations();
+        armClearGoals = true;
+        if (btn) btn.textContent = 'Certeza?';
+        clearGoalsTimer = setTimeout(() => {
+          armClearGoals = false;
+          if (btn) btn.textContent = 'Limpar metas';
+        }, 3500);
+        return;
+      }
+      resetConfirmations();
+      state.dailyGoals = [];
+      state.activeDailyId = null;
+      if (state.goalMode === 'daily') {
+        state.goal = null;
+        state.goalName = '';
+        state.goalCompleted = false;
+      }
+      state.lastText = 'Metas diárias limpas';
+      saveState();
+      renderDailyGoalsList();
+      render();
+    }
+
+    function editDailyGoal(idx) {
+      const dg = state.dailyGoals[idx];
+      if (!dg) return;
+      armedGoalDelIdx = null;
+      editingDailyIdx = idx;
+      draftGoalMode = 'daily';
+      syncGoalModeButtons();
+      document.getElementById('goal-modal-title').textContent = '🎯 Editar Meta Diária';
+      document.getElementById('btn-save-goal').textContent = 'Atualizar';
+      document.getElementById('inp-goal-name').value = dg.name;
+      document.getElementById('inp-goal').value = dg.target;
+    }
+
+    function toggleDailyGoalDone(idx) {
+      const dg = state.dailyGoals[idx];
+      if (!dg) return;
+      dg.completed = !dg.completed;
+      if (state.activeDailyId === dg.id) {
+        state.goalCompleted = dg.completed;
+        if (dg.completed && state.count < dg.target) state.count = dg.target;
+      }
+      state.lastText = dg.completed ? `Meta "${dg.name}" marcada como concluída` : `Meta "${dg.name}" reaberta`;
+      saveState();
+      renderDailyGoalsList();
+      render(true);
+    }
+
+    function clearGoal() {
+      state.goal = null;
+      state.goalName = '';
+      state.activeDailyId = null;
+      state.goalCompleted = false;
+      state.lastText = 'Meta removida';
+      cancelEditGoal();
+      closeModal('m-goal');
+      saveState();
+      render();
+    }
+
+    function saveGoal() {
+      const v = parseInt(document.getElementById('inp-goal').value, 10);
+      const name = (document.getElementById('inp-goal-name').value || '').trim();
+
+      if (editingDailyIdx !== null && state.dailyGoals[editingDailyIdx]) {
+        const dg = state.dailyGoals[editingDailyIdx];
+        if (!isNaN(v) && v > 0) {
+          dg.name = name || dg.name;
+          dg.target = v;
+          dg.completed = state.count >= v;
+          if (state.activeDailyId === dg.id) {
+            state.goal = v;
+            state.goalName = dg.name;
+            state.goalCompleted = dg.completed;
+          }
+          state.lastText = `Meta "${dg.name}" atualizada`;
+        }
+        cancelEditGoal();
+        saveState();
+        render();
+        return;
+      }
+
+      if (!isNaN(v) && v > 0) {
+        state.goal = v;
+        state.goalName = name || (draftGoalMode === 'daily' ? 'Meta diária' : 'Meta');
+        state.goalMode = draftGoalMode;
+        state.goalDay = todayKey();
+        state.goalCompleted = state.count >= v;
+
+        if (draftGoalMode === 'daily') {
+          const newItem = {
+            id: Date.now() + Math.random(),
+            name: state.goalName,
+            target: v,
+            enabled: true,
+            completed: state.count >= v
+          };
+          state.dailyGoals.push(newItem);
+          state.activeDailyId = newItem.id;
+          state.lastText = `Meta diária salva: "${state.goalName}" (${v.toLocaleString('pt-BR')})`;
+        } else {
+          state.activeDailyId = null;
+          state.lastText = `Meta única salva: "${state.goalName}" (${v.toLocaleString('pt-BR')})`;
+        }
+      } else {
+        state.goal = null;
+        state.goalName = '';
+        state.activeDailyId = null;
+        state.goalCompleted = false;
+        state.lastText = 'Meta removida';
+      }
+      cancelEditGoal();
+      closeModal('m-goal');
+      saveState();
+      render();
+    }
+
+    function useDailyGoal(idx) {
+      const dg = state.dailyGoals[idx];
+      if (!dg) return;
+      armedGoalDelIdx = null;
+      dg.enabled = true;
+      state.goalMode = 'daily';
+      state.activeDailyId = dg.id;
+      state.goal = dg.target;
+      state.goalName = dg.name;
+      state.goalDay = todayKey();
+      state.goalCompleted = Boolean(dg.completed) || state.count >= dg.target;
+      state.lastText = `Meta diária ativa: "${dg.name}"`;
+      saveState();
+      renderDailyGoalsList();
+      render();
+    }
+
+    function toggleDailyGoalEnabled(idx) {
+      const dg = state.dailyGoals[idx];
+      if (!dg) return;
+      armedGoalDelIdx = null;
+      dg.enabled = !dg.enabled;
+      if (!dg.enabled && state.activeDailyId === dg.id) pickFirstEnabledDailyGoal();
+      else if (dg.enabled && state.goalMode === 'daily' && !state.activeDailyId) pickFirstEnabledDailyGoal();
+      saveState();
+      renderDailyGoalsList();
+      render();
+    }
+
+    function moveDailyGoal(idx, dir) {
+      const targetIdx = idx + dir;
+      if (targetIdx < 0 || targetIdx >= state.dailyGoals.length) return;
+      armedGoalDelIdx = null;
+      const temp = state.dailyGoals[idx];
+      state.dailyGoals[idx] = state.dailyGoals[targetIdx];
+      state.dailyGoals[targetIdx] = temp;
+      saveState();
+      renderDailyGoalsList();
+    }
+
+    function delDailyGoal(idx) {
+      if (isSupervisionOn()) {
+        state.lastText = 'Bloqueado pelo Modo Supervisão';
+        render();
+        return;
+      }
+      const dg = state.dailyGoals[idx];
+      if (!dg) return;
+      if (armedGoalDelIdx !== idx) {
+        resetConfirmations();
+        armedGoalDelIdx = idx;
+        renderDailyGoalsList();
+        goalDelTimer = setTimeout(() => {
+          armedGoalDelIdx = null;
+          renderDailyGoalsList();
+        }, 3500);
+        return;
+      }
+      resetConfirmations();
+      const wasActive = state.activeDailyId === dg.id;
+      state.dailyGoals.splice(idx, 1);
+      if (wasActive) pickFirstEnabledDailyGoal();
+      state.lastText = `Meta "${dg.name}" excluída`;
+      saveState();
+      renderDailyGoalsList();
+      render();
+    }
+
     function openFinish() {
+      if (state.locked) return;
       disarmReset();
       if (state.count <= 0) return;
+      editingHistIdx = null;
+      document.getElementById('fin-modal-title').textContent = '✅ Concluir Contagem';
+      document.getElementById('fin-val-box').style.display = 'flex';
+      document.getElementById('inp-edit-hist-val').style.display = 'none';
+      document.getElementById('btn-save-finish').textContent = 'Salvar e Zerar';
       document.getElementById('fin-val').textContent = state.count.toLocaleString('pt-BR');
-      document.getElementById('inp-label').value = '';
+      document.getElementById('inp-label').value = state.activeLabel || '';
+      openModal('m-finish');
+    }
+
+    function editHistItem(idx) {
+      const item = state.history[idx];
+      if (!item) return;
+      armedHistDelIdx = null;
+      editingHistIdx = idx;
+      document.getElementById('fin-modal-title').textContent = '✏️ Editar Registro';
+      document.getElementById('fin-val-box').style.display = 'none';
+      document.getElementById('inp-edit-hist-val').style.display = 'block';
+      document.getElementById('btn-save-finish').textContent = 'Salvar Edição';
+      document.getElementById('inp-label').value = item.label || '';
+      document.getElementById('inp-edit-hist-val').value = Number(item.value) || 0;
       openModal('m-finish');
     }
 
     function saveFinish() {
-      if (state.count <= 0) return closeModal('m-finish');
+      getAudioCtx();
       const label = (document.getElementById('inp-label').value || '').trim() || 'Contagem';
+
+      if (editingHistIdx !== null && state.history[editingHistIdx]) {
+        const val = Math.max(0, parseInt(document.getElementById('inp-edit-hist-val').value, 10) || 0);
+        state.history[editingHistIdx].label = label;
+        state.history[editingHistIdx].value = val;
+        editingHistIdx = null;
+        state.lastText = `Registro "${label}" atualizado`;
+        closeModal('m-finish');
+        saveState();
+        renderHistoryList();
+        render();
+        return;
+      }
+
+      if (state.count <= 0) return closeModal('m-finish');
       const val = state.count;
+      const elapsedTxt = sessionElapsedSec > 0 ? ` · ${fmtTime(sessionElapsedSec)}` : '';
+      const now = new Date();
       state.history.unshift({
+        id: Date.now() + Math.random(),
         label,
         value: val,
-        date: new Date().toLocaleString('pt-BR')
+        dayKey: todayKey(),
+        date: now.toLocaleString('pt-BR') + elapsedTxt
       });
       state.count = 0;
-      state.goalHit = false;
+      state.activeLabel = null;
       prevSnapshot = null;
+      sessionStartMs = null;
+      sessionElapsedSec = 0;
+      tapIntervals = [];
+      lastTapMs = null;
+      paceLabel = 'Ritmo: --';
+      if (state.goalMode === 'daily' && state.goal > 0) {
+        state.goalDay = todayKey();
+        state.goalCompleted = false;
+      }
       state.lastText = `Salvo: "${label}" (${val.toLocaleString('pt-BR')})`;
+      playMissionSound();
       closeModal('m-finish');
       saveState();
       render(true);
     }
 
+    function isTodayRecord(item) {
+      if (!item) return false;
+      if (item.dayKey) return item.dayKey === todayKey();
+      const todayPt = new Date().toLocaleDateString('pt-BR');
+      return String(item.date || '').startsWith(todayPt);
+    }
+
+    function toggleTodayFilter() {
+      armedHistDelIdx = null;
+      onlyToday = !onlyToday;
+      document.getElementById('btn-filter-today').classList.toggle('on', onlyToday);
+      renderHistoryList();
+    }
+
+    function getFilteredHistory() {
+      const q = (document.getElementById('inp-search').value || '').trim().toLowerCase();
+      return state.history
+        .map((item, idx) => ({ item, idx }))
+        .filter(({ item }) => {
+          const matchText = !q || String(item.label || '').toLowerCase().includes(q);
+          const matchDay = !onlyToday || isTodayRecord(item);
+          return matchText && matchDay;
+        });
+    }
+
+    function renderHistoryList() {
+      const filtered = getFilteredHistory();
+      const total = filtered.reduce((a, b) => a + (Number(b.item.value) || 0), 0);
+      const scope = onlyToday ? 'hoje' : 'salvos';
+      document.getElementById('hist-sub').textContent = `${filtered.length} ${filtered.length === 1 ? 'registro' : 'registros'} ${scope} · Soma: ${total.toLocaleString('pt-BR')}`;
+
+      const bh = document.getElementById('btn-clear-hist');
+      if (bh) bh.disabled = isSupervisionOn();
+
+      const list = document.getElementById('hist-list');
+      list.innerHTML = !filtered.length
+        ? '<p style="text-align:center;color:var(--muted);padding:20px 0;font-size:0.86rem;">Nenhuma contagem encontrada.</p>'
+        : filtered.map(({ item, idx }) => {
+          const delLabel = armedHistDelIdx === idx ? 'Certeza?' : 'Excluir';
+          return `
+          <div class="h-item">
+            <div class="h-top">
+              <div style="min-width:0;flex:1;">
+                <strong style="font-size:0.88rem;word-break:break-word;">${item.label}</strong>
+                <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${item.date || ''}</div>
+              </div>
+              <div class="h-val">${Number(item.value || 0).toLocaleString('pt-BR')}</div>
+            </div>
+            <div class="h-btns">
+              <button class="s-btn" style="color:var(--accent)" onclick="contHist(${idx})">Continuar</button>
+              <button class="s-btn" onclick="sumHist(${idx})">Somar</button>
+              <button class="s-btn" onclick="editHistItem(${idx})">Editar</button>
+              <button class="s-btn" onclick="dupHist(${idx})">Duplicar</button>
+              <button class="s-btn b-danger" onclick="delHist(${idx})" ${isSupervisionOn() ? 'disabled' : ''}>${delLabel}</button>
+            </div>
+          </div>`;
+        }).join('');
+    }
+
     function openHistory() {
       disarmReset();
-      const total = state.history.reduce((a, b) => a + (Number(b.value) || 0), 0);
-      document.getElementById('hist-sub').textContent = `${state.history.length} registros · Soma: ${total.toLocaleString('pt-BR')}`;
-      const list = document.getElementById('hist-list');
-      list.innerHTML = !state.history.length
-        ? '<p style="text-align:center;color:var(--muted);padding:18px 0;font-size:0.84rem;">Nenhuma contagem salva ainda.</p>'
-        : state.history.map((item, idx) => `
-          <div class="h-item">
-            <div>
-              <strong style="font-size:0.88rem;">${item.label}</strong>
-              <div style="font-size:0.7rem;color:var(--muted);margin-top:2px;">${item.date || ''}</div>
-            </div>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <span class="h-val">${Number(item.value || 0).toLocaleString('pt-BR')}</span>
-              <button class="s-btn" type="button" onclick="delHist(${idx})">✕</button>
-            </div>
-          </div>`).join('');
+      onlyToday = false;
+      armedHistDelIdx = null;
+      document.getElementById('btn-filter-today').classList.remove('on');
+      document.getElementById('inp-search').value = '';
+      const pb = document.getElementById('pdf-preview-box');
+      if (pb) pb.style.display = 'none';
+      renderHistoryList();
       openModal('m-hist');
     }
 
-    function delHist(i) {
+    function contHist(i) {
+      const x = state.history[i];
+      if (!x) return;
+      armedHistDelIdx = null;
       state.history.splice(i, 1);
-      saveState();
-      openHistory();
+      state.count = Math.max(0, Number(x.value) || 0);
+      state.activeLabel = x.label || 'Contagem';
+      state.lastText = `Continuando "${state.activeLabel}"`;
+      closeModal('m-hist'); saveState(); render(true);
+    }
+    function sumHist(i) {
+      const x = state.history[i];
+      if (!x) return;
+      armedHistDelIdx = null;
+      closeModal('m-hist');
+      add(Math.max(0, Number(x.value) || 0), `Histórico "${x.label || 'Contagem'}"`);
+    }
+    function dupHist(i) {
+      const x = state.history[i];
+      if (!x) return;
+      armedHistDelIdx = null;
+      const now = new Date();
+      state.history.unshift({
+        id: Date.now() + Math.random(),
+        label: x.label || 'Contagem',
+        value: Math.max(0, Number(x.value) || 0),
+        dayKey: todayKey(),
+        date: now.toLocaleString('pt-BR')
+      });
+      state.lastText = `Duplicado: "${x.label || 'Contagem'}"`;
+      saveState(); renderHistoryList(); render();
+    }
+    function delHist(i) {
+      if (isSupervisionOn()) {
+        state.lastText = 'Exclusão bloqueada pelo Modo Supervisão';
+        render();
+        return;
+      }
+      if (i < 0 || i >= state.history.length) return;
+      if (armedHistDelIdx !== i) {
+        resetConfirmations();
+        armedHistDelIdx = i;
+        renderHistoryList();
+        histDelTimer = setTimeout(() => {
+          armedHistDelIdx = null;
+          renderHistoryList();
+        }, 3500);
+        return;
+      }
+      resetConfirmations();
+      state.history.splice(i, 1);
+      state.lastText = 'Item removido do histórico';
+      saveState(); renderHistoryList(); render();
+    }
+
+    function clearHistory() {
+      if (isSupervisionOn()) {
+        state.lastText = 'Exclusão bloqueada pelo Modo Supervisão';
+        render();
+        return;
+      }
+      if (!state.history.length) return;
+      const btn = document.getElementById('btn-clear-hist');
+      if (!armClearHist) {
+        resetConfirmations();
+        armClearHist = true;
+        if (btn) btn.textContent = 'Certeza?';
+        clearHistTimer = setTimeout(() => {
+          armClearHist = false;
+          if (btn) btn.textContent = 'Limpar tudo';
+        }, 3500);
+        return;
+      }
+      resetConfirmations();
+      state.history = [];
+      state.lastText = 'Histórico limpo';
+      saveState(); renderHistoryList(); render();
+    }
+
+    function copySummary() {
+      const rows = getFilteredHistory().map(x => x.item);
+      if (!rows.length) {
+        state.lastText = 'Sem registros para copiar';
+        render();
+        return;
+      }
+      const total = rows.reduce((a, b) => a + (Number(b.value) || 0), 0);
+      const lines = [
+        `Resumo (${state.name})`,
+        ...rows.map(x => `- ${x.label}: ${Number(x.value || 0).toLocaleString('pt-BR')}${x.date ? ' (' + x.date + ')' : ''}`),
+        `Total geral: ${total.toLocaleString('pt-BR')}`
+      ].join('\n');
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lines).catch(() => {});
+      }
+      state.lastText = 'Resumo copiado';
       render();
     }
 
-    function toggleTheme() {
-      state.dark = !state.dark;
-      saveState();
+    function exportCsv() {
+      const rows = getFilteredHistory().map(x => x.item);
+      if (!rows.length) { state.lastText = 'Nada para exportar em CSV'; render(); return; }
+      const esc = v => '"' + String(v ?? '').replace(/"/g, '""') + '"';
+      const lines = ['Nome;Valor;Data'].concat(rows.map(r => [esc(r.label), Number(r.value) || 0, esc(r.date || '')].join(';')));
+      const csvText = '\uFEFF' + lines.join('\r\n');
+      try {
+        const blob = new Blob([csvText], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'contagens.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      } catch (_) {}
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(lines.join('\n')).catch(() => {});
+      }
+      state.lastText = 'CSV gerado (e copiado para planilha)';
       render();
     }
 
-    function openModal(id) { document.getElementById(id).classList.add('open'); }
-    function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+    function exportPdfView() {
+      const rows = getFilteredHistory().map(x => x.item);
+      const total = rows.reduce((a, b) => a + (Number(b.value) || 0), 0);
+      const box = document.getElementById('pdf-preview-box');
+      if (!box) return;
+      if (!rows.length) {
+        box.innerHTML = '<div style="font-size:0.82rem;">Nenhum registro para gerar relatório.</div>';
+        box.style.display = 'block';
+        return;
+      }
+      const htmlRows = rows.map(r => `<tr><td style="padding:6px;border-bottom:1px solid #E2E8F0;font-size:0.78rem">${r.label}</td><td style="padding:6px;border-bottom:1px solid #E2E8F0;text-align:right;font-size:0.78rem;font-weight:700">${Number(r.value || 0).toLocaleString('pt-BR')}</td><td style="padding:6px;border-bottom:1px solid #E2E8F0;font-size:0.72rem;color:#475569">${r.date || ''}</td></tr>`).join('');
+      box.innerHTML = `
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <strong style="font-size:0.86rem;">Relatório — ${state.name}</strong>
+          <button type="button" onclick="document.getElementById('pdf-preview-box').style.display='none'" style="border:1px solid #CBD5E1;background:#F1F5F9;color:#0F172A;border-radius:8px;padding:3px 8px;font-size:0.72rem;font-weight:700;">Fechar</button>
+        </div>
+        <table style="width:100%;border-collapse:collapse">
+          <thead><tr><th style="text-align:left;padding:6px;border-bottom:2px solid #0F172A;font-size:0.76rem">Item</th><th style="text-align:right;padding:6px;border-bottom:2px solid #0F172A;font-size:0.76rem">Valor</th><th style="text-align:left;padding:6px;border-bottom:2px solid #0F172A;font-size:0.76rem">Data</th></tr></thead>
+          <tbody>${htmlRows}</tbody>
+        </table>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:10px;">
+          <strong style="font-size:0.84rem;">Total: ${total.toLocaleString('pt-BR')}</strong>
+          <button type="button" onclick="window.print()" style="border:none;background:#2563EB;color:#FFF;border-radius:9px;padding:6px 10px;font-size:0.74rem;font-weight:700;">Imprimir / Salvar PDF</button>
+        </div>`;
+      box.style.display = 'block';
+    }
 
-    if (location.protocol.startsWith('http')) {
-      const manifest = {
-        name: 'Contador',
-        short_name: 'Contador',
-        start_url: './',
-        display: 'standalone',
-        background_color: '#060A14',
-        theme_color: '#090F1E'
+    function exportJson() {
+      const blob = new Blob([JSON.stringify(root, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'contador-backup.json';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    }
+
+    function importJson(e) {
+      const f = e.target.files && e.target.files[0]; if (!f) return;
+      const r = new FileReader();
+      r.onload = () => {
+        try {
+          const d = JSON.parse(r.result);
+          const maxP = getMaxProfiles();
+          if (d && Array.isArray(d.profiles) && d.profiles.length) {
+            root.onboardingDone = true;
+            showPickerOnOpen = false;
+            root.profiles = d.profiles.slice(0, maxP);
+            root.activeProfileId = d.activeProfileId || root.profiles[0].id;
+            syncActiveProfileRef();
+          } else if (d && typeof d === 'object') {
+            Object.assign(state, d);
+            root.onboardingDone = true;
+            showPickerOnOpen = false;
+          }
+          state.lastText = 'Backup importado';
+          saveState(); syncScreens(); renderHistoryList(); renderDailyGoalsList(); syncWakeLock(); render();
+        } catch (_) { alert('JSON inválido.'); }
       };
-      const link = document.createElement('link');
-      link.rel = 'manifest';
-      link.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/manifest+json' }));
-      document.head.appendChild(link);
+      r.readAsText(f);
     }
+
+    let rec = null, voiceOn = false, lastSpoken = '', lastSpokenAt = 0;
+    const words = {
+      'zero':0,'um':1,'uma':1,'one':1,'dois':2,'duas':2,'two':2,'tres':3,'três':3,'three':3,
+      'quatro':4,'four':4,'cinco':5,'five':5,'seis':6,'meia':6,'six':6,'sete':7,'seven':7,
+      'oito':8,'eight':8,'nove':9,'nine':9,'dez':10,'ten':10,'onze':11,'doze':12,'treze':13,
+      'quatorze':14,'quinze':15,'fifteen':15,'dezesseis':16,'dezessete':17,'dezoito':18,'dezenove':19,
+      'vinte':20,'twenty':20,'trinta':30,'thirty':30,'quarenta':40,'cinquenta':50,'fifty':50,
+      'sessenta':60,'setenta':70,'oitenta':80,'noventa':90,'cem':100,'cento':100,'hundred':100,'mil':1000
+    };
+
+    function setMicColor(on) {
+      const btn = document.getElementById('voice-btn');
+      if (btn) btn.classList.toggle('on', Boolean(on));
+    }
+
+    function parseSpeech(raw) {
+      if (!root.onboardingDone || showPickerOnOpen || state.locked) return;
+      const clean = String(raw || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+      if (!clean) return;
+      const now = Date.now();
+      if (clean === lastSpoken && now - lastSpokenAt < 900) return;
+      lastSpoken = clean;
+      lastSpokenAt = now;
+
+      if (/(^|\s)(zerar|zera)(\s|$)/.test(clean) && state.count > 0) {
+        if (isSupervisionOn()) {
+          state.lastText = 'Bloqueado pelo Modo Supervisão';
+          render();
+          return;
+        }
+        snapshot(); state.count = 0; state.lastText = 'Voz: zerado'; saveState(); render(true); return;
+      }
+      if (/(^|\s)(desfazer|volta|voltar)(\s|$)/.test(clean) && prevSnapshot) {
+        undoLast(); return;
+      }
+      if (/(^|\s)(concluir|salvar)(\s|$)/.test(clean) && state.count > 0) {
+        openFinish(); return;
+      }
+
+      const sub = /(^|\s)(tira|tirar|tirou|menos|subtrai|subtrair|remove|remover|deduz)(\s|$)/.test(clean);
+      const tokens = clean.replace(/[^a-z0-9\s+-]/g, ' ').split(/\s+/);
+      const nums = [];
+      for (const t of tokens) {
+        if (/^[+-]?\d+$/.test(t)) nums.push(Math.abs(parseInt(t, 10)));
+        else if (words[t] !== undefined && words[t] > 0) nums.push(words[t]);
+      }
+      if (!nums.length) {
+        add(sub ? -state.step : state.step, 'Voz');
+        return;
+      }
+      const val = sub ? nums[nums.length - 1] : nums.reduce((a, b) => a + b, 0);
+      add(sub ? -val : val, 'Voz');
+    }
+
+    function makeRecognizer() {
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) return null;
+      const r = new SR();
+      r.lang = 'pt-BR';
+      r.continuous = true;
+      r.interimResults = false;
+      r.onstart = () => setMicColor(true);
+      r.onresult = (e) => {
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal && e.results[i][0]) {
+            parseSpeech(e.results[i][0].transcript);
+          }
+        }
+      };
+      r.onerror = (e) => {
+        if (e && (e.error === 'not-allowed' || e.error === 'service-not-allowed')) {
+          voiceOn = false;
+          setMicColor(false);
+          state.lastText = 'Permissão de microfone negada';
+          render();
+        }
+      };
+      r.onend = () => {
+        if (voiceOn) {
+          setTimeout(() => {
+            if (!voiceOn) return;
+            try { rec = makeRecognizer(); if (rec) rec.start(); } catch (_) {}
+          }, 180);
+        } else {
+          setMicColor(false);
+        }
+      };
+      return r;
+    }
+
+    function toggleVoice() {
+      if (state.locked) return;
+      disarmReset();
+      const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+      if (!SR) {
+        setMicColor(false);
+        state.lastText = 'Voz indisponível neste navegador';
+        render();
+        return;
+      }
+      voiceOn = !voiceOn;
+      if (!voiceOn) {
+        try { if (rec) { rec.onend = null; rec.stop(); } } catch (_) {}
+        rec = null;
+        setMicColor(false);
+        return;
+      }
+      setMicColor(true);
+      try {
+        rec = makeRecognizer();
+        if (rec) rec.start();
+      } catch (_) {
+        voiceOn = false;
+        setMicColor(false);
+      }
+    }
+
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) {
+      const sw = `const C='cnt-perfis-v16';self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./'])));self.skipWaiting();});self.addEventListener('fetch',e=>{e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request).then(res=>{caches.open(C).then(c=>c.put(e.request,res.clone()));return res;}).catch(()=>caches.match('./'))));});`;
+      navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw], { type: 'application/javascript' }))).catch(() => {});
+    }
+
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) saveState();
+      else { checkDailyRollover(); syncWakeLock(); render(); }
+    });
 
     loadState();
+    syncScreens();
+    syncWakeLock();
     render();
   </script>
 </body>
